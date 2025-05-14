@@ -71,7 +71,7 @@ async function handleConnectAndSign() {
   setStatus("Connecting wallet...");
   try {
     if (!solWallet.connected) {
-      await solWallet.connect();
+        throw new Error("Please connect your wallet first using the button.");
     }
     const publicKey = solWallet.publicKey?.toBase58();
     if (!publicKey) throw new Error("No wallet address");
