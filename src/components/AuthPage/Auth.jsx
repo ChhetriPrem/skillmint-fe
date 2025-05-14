@@ -63,7 +63,7 @@ const howItWorks = [
     icon: "🔍",
   },
 ];
-import { useState } from "react";
+
 
 function ExtensionInfoModal({ isOpen, onClose }) {
   if (!isOpen) return null;
