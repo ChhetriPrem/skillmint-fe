@@ -33,7 +33,7 @@ export async function fetchBadgesForWallet(connection, walletPublicKey) {
 
   // ---  fallback ---
   // For demo/hackathon, fetch from backend instead of on-chain.
-  const response = await fetch(`/api/getbadges?wallet=${walletPublicKey.toBase58()}`);
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/getbadges?wallet=${walletPublicKey.toBase58()}`);
   if (!response.ok) {
     throw new Error("Failed to fetch badges from backend");
   }
@@ -42,7 +42,7 @@ export async function fetchBadgesForWallet(connection, walletPublicKey) {
 
 export async function fetchBadgesForWallet2(connection, walletPublicKey) {
 
-  const response = await fetch(`https://localhost:3000/api/badges?wallet=${walletPublicKey.toBase58()}`);
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/badges?wallet=${walletPublicKey.toBase58()}`);
   if (!response.ok) throw new Error("Failed to fetch badges from backend");
   
   const data = await response.json();
