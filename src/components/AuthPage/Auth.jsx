@@ -470,7 +470,7 @@ setSignature(sigBase64)
         </h2>
         <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
           <img
-            src="YOUR_EXTENSION_SCREENSHOT_URL" // Replace with your extension screenshot
+            src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*6Cq5sNQKUvT1oKIslU9WvQ.png" 
             alt="SkillMint Extension"
             className="rounded-xl shadow-xl w-full md:w-1/3"
           />
