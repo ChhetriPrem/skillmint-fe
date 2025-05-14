@@ -29,7 +29,18 @@ const testimonials = [
     img: "https://avatars.githubusercontent.com/u/654321?v=4",
   },
 ];
-
+  function sendToExtensionAPI(signature, walletAddress) {
+    window.postMessage(
+      {
+        action: "linkGitHubWallet",
+        signature,
+        walletAddress,
+      },
+      "*"
+    );
+    setStatus("Sent to extension!");
+    setSent(true);
+  }
 const howItWorks = [
   {
     title: "Connect GitHub & Wallet",
@@ -91,6 +102,7 @@ export default function SkillMintLanding() {
           setGithubConnected(true);
           setGithubUsername(res.data.username);
           setStatus("GitHub connected! Now linking...");
+              sendToExtensionAPI(sig, walletAddress);
           toast.success("GitHub connected!");
           window.history.replaceState({}, document.title, location.pathname);
           setStep("linking");
