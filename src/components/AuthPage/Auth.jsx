@@ -90,6 +90,12 @@ export default function SkillMintLanding() {
         .finally(() => setLoading(false));
     }
   }, [location, githubConnected]);
+useEffect(() => {
+  // Auto-open wallet modal if GitHub is connected, but not onboarded
+  if (githubConnected && !localStorage.getItem("onboarded")) {
+    setShowWalletModal(true);
+  }
+}, [githubConnected]);
 
   // Wallet sign message and link to GitHub
   async function handleConnectAndSign() {
