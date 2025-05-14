@@ -1,6 +1,6 @@
 import { useUserStore } from "../store/useUserStore";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, Outlet, useLocation } from "react-router-dom";
-import { Link, Outlet } from "react-router-dom";
+
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function DashboardLayout() {
