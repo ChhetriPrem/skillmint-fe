@@ -7,7 +7,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import image from "../../assets/image.png"
+
 // Testimonials and howItWorks data
 const testimonials = [
   {
@@ -442,7 +442,7 @@ setSignature(sigBase64)
         </h2>
         <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
           <img
-            src={image} // Replace with your screenshot
+            src={/image.png} // Replace with your screenshot
             alt="SkillMint Wallet Linking"
             className="rounded-2xl shadow-2xl w-full md:w-1/2"
           />
