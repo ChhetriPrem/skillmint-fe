@@ -63,8 +63,46 @@ const howItWorks = [
     icon: "🔍",
   },
 ];
+import { useState } from "react";
+
+function ExtensionInfoModal({ isOpen, onClose }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+      <div className="bg-white text-gray-800 rounded-xl shadow-xl max-w-md w-full p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-lg"
+        >
+          ×
+        </button>
+        <h2 className="text-xl font-bold mb-2 text-red-600">Extension Not on Web Store</h2>
+        <p className="mb-3 text-sm">
+          Due to lack of funds, we couldn’t publish the extension on the Chrome Web Store because of the $5 registration fee.
+        </p>
+        <p className="mb-4 text-sm">
+          Please download the extension pack from Google Drive and install it manually:
+        </p>
+        <a
+          href="https://drive.google.com/YOUR_DRIVE_LINK_HERE"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg transition"
+        >
+          📥 Download from Google Drive
+        </a>
+        <p className="text-xs text-gray-500 mt-4">
+          Go to <b>chrome://extensions</b>, enable <b>Developer Mode</b>, click <b>“Load unpacked”</b>, and select the extracted folder.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function SkillMintLanding() {
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
+
  const [showWalletModal, setShowWalletModal] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [status, setStatus] = useState("");
@@ -321,6 +359,18 @@ export default function SkillMintLanding() {
           transition={{ delay: 0.5, duration: 0.7 }}
           className="flex flex-col md:flex-row gap-4 justify-center items-center"
         >
+         <a
+  onClick={() => setShowExtensionModal(true)}
+  className="text-sm text-blue-400 underline cursor-pointer hover:text-blue-600"
+>
+  🧩 Why isn't the extension on the store?
+</a>
+
+<ExtensionInfoModal
+  isOpen={showExtensionModal}
+  onClose={() => setShowExtensionModal(false)}
+/>
+
 <button
   onClick={() => setShowWalletModal(true)}
   className="py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition duration-300"
