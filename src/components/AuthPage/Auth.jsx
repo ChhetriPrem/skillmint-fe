@@ -7,7 +7,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import image = "../../assets/image.png"
+import image from "../../assets/image.png"
 // Testimonials and howItWorks data
 const testimonials = [
   {
