@@ -86,12 +86,10 @@ export default function App() {
                   index
                   element={
                     <div className="max-w-2xl mx-auto mt-12 text-center">
-                      <h1 className="text-4xl font-bold mb-6 text-purple-300 drop-shadow">
-                        Welcome to SkillMint DApp
-                      </h1>
-                      <p className="mb-8 text-gray-300">
-                        Mint, manage, and showcase your skills as NFTs on Solana.
-                      </p>
+
+
+ 
+
                       <div className="grid md:grid-cols-3 gap-6">
                         <Link to="issuer" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Initialize Issuer</Link>
                         <Link to="template" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Create Template</Link>
@@ -101,9 +99,7 @@ export default function App() {
                   }
                 />
                 <Route path="issuer" element={<IssuerInitializer connection={connection} />} />
-                <Route path="template" element={<BadgeTemplateCreator connection={connection} />} />
 
-                <Route path="badges" element={<BadgeList />} />
 
                 <Route path="accept" element={<BadgeAccepter />} />
               </Route>
