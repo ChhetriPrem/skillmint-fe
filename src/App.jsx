@@ -106,6 +106,7 @@ export default function App() {
           <Router>
             <Routes>
               <Route path="/" element={<SkillMintLanding />} />
+              <Route path="oauth" element={<OAuthCallback />} />
               <Route path="/cv/:username" element={<SkillMintCV />} /> {/* <-- Public CV */}
               <Route
                 path="/auth"
@@ -145,7 +146,7 @@ export default function App() {
                 <Route path="template" element={<BadgeTemplateCreator connection={connection} />} />
                 <Route path="mint" element={<BadgeMinter connection={connection} />} />
                 <Route path="badges" element={<BadgeList />} />
-                <Route path="oauth" element={<OAuthCallback />} />
+
                 <Route path="accept" element={<BadgeAccepter />} />
               </Route>
               <Route path="*" element={<Navigate to="/auth" replace />} />
