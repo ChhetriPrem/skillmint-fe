@@ -392,7 +392,7 @@ export default function SkillMintLanding() {
               <b>Seamlessly link your wallet, sign messages, and manage badges directly from your browser.</b>
             </p>
             <a
-              href="YOUR_EXTENSION_URL"
+              href="https://drive.google.com/drive/folders/1iAnrx6AB4PJy3fH6N6xGjSpDHTsxzPI9"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-block py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg hover:brightness-110 transition"
