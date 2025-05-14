@@ -9,15 +9,15 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 import { Toaster } from 'react-hot-toast';
 
 // Import your pages/components
-import AuthPage from "./components/AuthPage/Auth";         // your paste.txt file
-import SkillMintCV from "./components/CV";                 // public CV page
-import DashboardLayout from "./components/Dashboard"; // Dashboard layout (with Outlet)
+import AuthPage from "./components/AuthPage/Auth";      
+import SkillMintCV from "./components/CV";               
+import DashboardLayout from "./components/Dashboard";
 import IssuerInitializer from "./components/IssuerInitializer";
 import BadgeTemplateCreator from "./components/BadgeTemplateCreator";
 import BadgeMinter from "./components/BadgeMinter";
 import BadgeList from "./components/BadgesList";
 import BadgeAccepter from "./components/AcceptBadge";
-import OAuthCallback from "./components/AuthPage/Auth";    // If you have a separate OAuth callback
+import OAuthCallback from "./components/AuthPage/Auth";    
 
 // Helper hook for onboarding
 const useOnboarded = () => !!localStorage.getItem("onboarded");
