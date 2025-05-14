@@ -353,18 +353,27 @@ export default function SkillMintLanding() {
             Showcase your real skills. Get recognized. Own your reputation.
           </span>
         </motion.p>
+
+        <div className="bg-blue-50 border border-blue-300 text-blue-800 rounded-lg px-5 py-4 mb-6 shadow-sm text-center max-w-2xl mx-auto">
+  <p className="text-sm sm:text-base font-medium">
+    🔐 <span className="font-semibold">Please add the SkillMint Extension before logging in.</span>
+    <br />
+    <span
+      onClick={() => setShowExtensionModal(true)}
+      className="inline-block mt-2 text-blue-600 underline cursor-pointer hover:text-blue-800 transition"
+    >
+      🧩 Why isn’t the extension on the Chrome Web Store?
+    </span>
+  </p>
+</div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.7 }}
           className="flex flex-col md:flex-row gap-4 justify-center items-center"
         >
-         <a
-  onClick={() => setShowExtensionModal(true)}
-  className="text-sm text-blue-400 underline cursor-pointer hover:text-blue-600"
->
-  🧩 Why isn't the extension on the store?
-</a>
+  
 
 <ExtensionInfoModal
   isOpen={showExtensionModal}
