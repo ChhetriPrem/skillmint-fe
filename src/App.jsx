@@ -69,7 +69,7 @@ export default function App() {
           />
           <Router>
             <Routes>
-              <Route path="/" element={<AuthPage />} />
+          
               <Route path="/auth" element={<AuthPage />} /> {/* <-- always open, not protected */}
               <Route path="/cv/:username" element={<SkillMintCV />} /> {/* public CV */}
               <Route
