@@ -29,18 +29,7 @@ const testimonials = [
     img: "https://avatars.githubusercontent.com/u/654321?v=4",
   },
 ];
-function sendToExtensionAPI(signature, walletAddress) {
-  window.postMessage(
-    {
-      action: "linkGitHubWallet",
-      signature,
-      walletAddress,
-    },
-    "*"
-  );
-  setStatus("Sent to extension!");
-  setSent(true);
-}
+
 
 const howItWorks = [
   {
@@ -111,6 +100,7 @@ const [step, setStep] = useState("wallet");
   const [githubConnected, setGithubConnected] = useState(!!localStorage.getItem("github_access_token"));
   const [githubUsername, setGithubUsername] = useState(localStorage.getItem("github_username") || "");
   const setWallet = useUserStore((s) => s.setWallet);
+  
   const solWallet = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
@@ -182,7 +172,18 @@ useEffect(() => {
   }
 }, [step, navigate]);
 
-
+function sendToExtensionAPI(signature, walletAddress) {
+  window.postMessage(
+    {
+      action: "linkGitHubWallet",
+      signature,
+      walletAddress,
+    },
+    "*"
+  );
+  setStatus("Sent to extension!");
+  setSent(true);
+}
   async function handleConnectAndSign() {
      setStatus("Connecting wallet...");
     setLoading(true);
