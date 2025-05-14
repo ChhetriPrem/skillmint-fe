@@ -1,7 +1,7 @@
 // src/components/Dashboard.jsx
 import { useUserStore } from "../store/useUserStore";
 
-function DashboardLayout() {
+export default function DashboardLayout() {
   return (
     <>
       <nav className="bg-gray-900 text-white py-3 px-8 flex justify-between items-center shadow-lg">
