@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getGithubAuthUrl } from "../../utils/githubOAuth";
 import { useUserStore } from "../../store/useUserStore";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 // Testimonials and howItWorks data
 const testimonials = [
@@ -52,62 +53,111 @@ const howItWorks = [
   },
 ];
 
-function handleGithubLogin() {
-  window.location.href = getGithubAuthUrl();
-}
-
 export default function SkillMintLanding() {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [status, setStatus] = useState("");
-  const [signature, setSignature] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [githubConnected, setGithubConnected] = useState(!!localStorage.getItem("github_access_token"));
+  const [githubUsername, setGithubUsername] = useState(localStorage.getItem("github_username") || "");
   const setWallet = useUserStore((s) => s.setWallet);
-  const wallet = useUserStore((s) => s.wallet);
   const solWallet = useWallet();
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Handle GitHub OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    if (code && !githubConnected) {
+      setLoading(true);
+      setStatus("Connecting to GitHub...");
+      axios
+        .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/github/exchange`, { code })
+        .then((res) => {
+          localStorage.setItem("github_access_token", res.data.accessToken);
+          localStorage.setItem("github_username", res.data.username);
+          setGithubConnected(true);
+          setGithubUsername(res.data.username);
+          setStatus("GitHub connected! Now connect your wallet.");
+          toast.success("GitHub connected!");
+          window.history.replaceState({}, document.title, location.pathname);
+        })
+        .catch(() => {
+          setStatus("GitHub connection failed.");
+          toast.error("GitHub connection failed.");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [location, githubConnected]);
+
+  // Wallet sign message and link to GitHub
   async function handleConnectAndSign() {
     setStatus("Connecting wallet...");
+    setLoading(true);
     try {
+      if (!githubConnected || !githubUsername) {
+        toast.error("Please connect your GitHub first!");
+        setStatus("Please connect your GitHub first!");
+        setLoading(false);
+        return;
+      }
       if (!solWallet.connected) {
         toast.error("Please connect your wallet first!");
         setStatus("Please connect your wallet first!");
+        setLoading(false);
         return;
       }
       const publicKey = solWallet.publicKey?.toBase58();
       if (!publicKey) throw new Error("No wallet address");
       setWallet({ publicKey });
 
+      // Get challenge from backend
+      setStatus("Getting challenge...");
+      const { data: challengeData } = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/github/challenge`,
+        { github_username: githubUsername }
+      );
+      const challenge = challengeData.challenge;
+
+      // Sign challenge
+      setStatus("Signing challenge...");
       if (!solWallet.signMessage) throw new Error("Wallet does not support signMessage");
-      const msg = "Link your wallet to GitHub";
-      const encoded = new TextEncoder().encode(msg);
+      const encoded = new TextEncoder().encode(challenge);
       const sig = await solWallet.signMessage(encoded);
       const sigBase64 = btoa(String.fromCharCode(...sig));
-      setSignature(sigBase64);
 
-      setWallet({ publicKey, signature: sigBase64 });
+      // Send signature to backend to link GitHub <-> wallet
+      setStatus("Linking wallet to GitHub...");
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/github/link`,
+        {
+          github_username: githubUsername,
+          wallet_address: publicKey,
+          signature: sigBase64,
+          challenge,
+        }
+      );
 
-      setStatus("Wallet connected and message signed!");
-      toast.success("Wallet linked and signed! Redirecting to dashboard...");
+      setWallet({ publicKey, signature: sigBase64, githubUsername });
+      setStatus("Wallet connected and GitHub linked!");
+      toast.success("Wallet linked to GitHub! Redirecting to dashboard...");
 
       localStorage.setItem("onboarded", "1");
-
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
     } catch (e) {
-      setStatus("❌ " + (e.message || "Wallet/signing error"));
-      toast.error(e.message || "Wallet/signing error");
+      setStatus("❌ " + (e.response?.data?.error || e.message || "Wallet/signing error"));
+      toast.error(e.response?.data?.error || e.message || "Wallet/signing error");
+    } finally {
+      setLoading(false);
     }
   }
 
   // Carousel logic
-  const nextTestimonial = () =>
-    setTestimonialIdx((i) => (i + 1) % testimonials.length);
-  const prevTestimonial = () =>
-    setTestimonialIdx((i) =>
-      i === 0 ? testimonials.length - 1 : i - 1
-    );
+  const nextTestimonial = () => setTestimonialIdx((i) => (i + 1) % testimonials.length);
+  const prevTestimonial = () => setTestimonialIdx((i) => (i === 0 ? testimonials.length - 1 : i - 1));
 
   return (
     <div className="relative min-h-screen bg-gradient-to-tr from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white overflow-x-hidden">
@@ -400,21 +450,38 @@ export default function SkillMintLanding() {
                 ×
               </button>
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-4 text-purple-300">Link Your Wallet</h3>
-                {!solWallet.connected ? (
+                <h3 className="text-2xl font-bold mb-4 text-purple-300">Link Your GitHub & Wallet</h3>
+                {/* 1. GitHub Connect */}
+                {!githubConnected ? (
+                  <button
+                    onClick={() => window.location.href = getGithubAuthUrl()}
+                    className="mt-6 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 shadow-lg hover:brightness-110 transition"
+                    disabled={loading}
+                  >
+                    {loading ? "Connecting..." : "Connect GitHub"}
+                  </button>
+                ) : !solWallet.connected ? (
+                  // 2. Wallet Connect
                   <>
                     <WalletMultiButton />
-                    <div className="mt-4 text-pink-400 font-semibold">Please connect your wallet first.</div>
+                    <div className="mt-4 text-pink-400 font-semibold">Please connect your wallet.</div>
                   </>
                 ) : (
+                  // 3. Sign Message
                   <button
                     className="mt-6 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition"
                     onClick={handleConnectAndSign}
+                    disabled={loading}
                   >
-                    Sign Message to Link
+                    {loading ? "Processing..." : "Sign Message to Link"}
                   </button>
                 )}
                 {status && <div className="mt-4 text-sm text-gray-300">{status}</div>}
+                {githubConnected && githubUsername && (
+                  <div className="mt-2 text-xs text-gray-400">
+                    GitHub: <span className="font-mono">{githubUsername}</span>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -423,3 +490,4 @@ export default function SkillMintLanding() {
     </div>
   );
 }
+
