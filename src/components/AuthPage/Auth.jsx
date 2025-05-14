@@ -65,7 +65,7 @@ export default function SkillMintLanding() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle GitHub OAuth callback
+ 
  // Handle GitHub OAuth callback
 useEffect(() => {
   const params = new URLSearchParams(location.search);
@@ -83,7 +83,7 @@ useEffect(() => {
         setStatus("GitHub connected! Now connect your wallet.");
         toast.success("GitHub connected!");
         window.history.replaceState({}, document.title, location.pathname);
-        setShowWalletModal(true); 
+        setShowWalletModal(true); // <--- THIS IS CORRECT
       })
       .catch(() => {
         setStatus("GitHub connection failed.");
@@ -93,14 +93,8 @@ useEffect(() => {
   }
 }, [location, githubConnected]);
 
-// REMOVE the "auto open modal" useEffect you added before!
 
-useEffect(() => {
-  // Auto-open wallet modal if GitHub is connected, but not onboarded
-  if (githubConnected && !localStorage.getItem("onboarded")) {
-    setShowWalletModal(true);
-  }
-}, [githubConnected]);
+
 
   // Wallet sign message and link to GitHub
   async function handleConnectAndSign() {
@@ -241,12 +235,13 @@ useEffect(() => {
           transition={{ delay: 0.5, duration: 0.7 }}
           className="flex flex-col md:flex-row gap-4 justify-center items-center"
         >
-          <button
-            onClick={() => setShowWalletModal(true)}
-            className="py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition duration-300"
-          >
-            Connect GitHub & Wallet
-          </button>
+<button
+  onClick={() => setShowWalletModal(true)}
+  className="py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition duration-300"
+>
+  Connect GitHub & Wallet
+</button>
+
           <a
             href="#demo"
             className="py-4 px-8 rounded-xl font-bold text-lg bg-[#111827]/80 border border-purple-600 text-purple-300 hover:bg-purple-900/40 transition"
