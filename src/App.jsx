@@ -5,9 +5,9 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
-import SkillMintLanding from "./components/AuthPage/SkillMintLanding"; // <--- Your beautiful onboarding page
-import Dashboard from "./components/Dashboard"; // Your dashboard page
-import OAuthCallback from "./components/AuthPage/OAuthCallback"; // Handles GitHub OAuth redirect
+import SkillMintLanding from "./components/AuthPage/Auth"; 
+import Dashboard from "./components/Dashboard"; 
+import OAuthCallback from "./components/AuthPage/OAuthCallback";
 
 const NETWORK = "devnet";
 const useOnboarded = () => !!localStorage.getItem("onboarded");
