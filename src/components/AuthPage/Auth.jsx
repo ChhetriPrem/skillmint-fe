@@ -378,7 +378,7 @@ setSignature(sigBase64)
       onClick={() => setShowExtensionModal(true)}
       className="inline-block mt-2 text-blue-600  cursor-pointer hover:text-blue-800 transition"
     >
-      🧩 Why isn’t the extension on the Chrome Web Store? <- Click to know
+      Why isn’t the extension on the Chrome Web Store? - Click here
       
     </span>
   </p>
