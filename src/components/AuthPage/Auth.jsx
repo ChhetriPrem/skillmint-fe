@@ -116,8 +116,7 @@ const [step, setStep] = useState("wallet");
   const location = useLocation();
 const [sent, setSent] = useState(false);
 
-  // Stepper state: 'wallet' | 'github' | 'linking' | 'done'
-  const [step, setStep] = useState("wallet");
+
 // Step 1: When wallet connects, move to GitHub step
 useEffect(() => {
   if (showWalletModal && solWallet.connected && step === "wallet") {
