@@ -11,7 +11,7 @@ import { Toaster } from 'react-hot-toast';
 // Import your pages/components
 import AuthPage from "./components/AuthPage/Auth";         // your paste.txt file
 import SkillMintCV from "./components/CV";                 // public CV page
-import DashboardLayout from "./components/DashboardLayout"; // Dashboard layout (with Outlet)
+import DashboardLayout from "./components/Dashboard"; // Dashboard layout (with Outlet)
 import IssuerInitializer from "./components/IssuerInitializer";
 import BadgeTemplateCreator from "./components/BadgeTemplateCreator";
 import BadgeMinter from "./components/BadgeMinter";
