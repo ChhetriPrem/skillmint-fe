@@ -102,7 +102,7 @@ export default function BadgeTemplateCreator({ connection }) {
         formData.append("description", description);
         formData.append("file", imageFile);
 
-        const res = await fetch(`${process.env.BACKEND_URL}/api/create-template`, {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/create-template`, {
           method: "POST",
           body: formData,
         });
@@ -120,7 +120,7 @@ export default function BadgeTemplateCreator({ connection }) {
       // 3. Store everything in DB (including txSignature)
       setStatus("💾 Saving template in database...");
       try {
-        const dbRes = await fetch(`${process.env.BACKEND_URL}/api/store-template`, {
+        const dbRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/store-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
