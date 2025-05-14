@@ -24,6 +24,7 @@
     "@solana/web3.js": "^1.98.2",
     "@tailwindcss/vite": "^4.1.6",
     "framer-motion": "^12.11.0",
+        "lucide-react": "^0.510.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
