@@ -1,14 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import fs from 'fs'
 import path from 'path'
 
 export default defineConfig({
+  base: './', 
   plugins: [
     react(),
-    tailwindcss(),
     nodePolyfills({
       globals: {
         Buffer: true,
@@ -23,8 +22,7 @@ export default defineConfig({
     https: {
       key: fs.readFileSync(path.resolve(__dirname, './localhost+1-key.pem')),
       cert: fs.readFileSync(path.resolve(__dirname, './localhost+1.pem')),
-    },
-      historyApiFallback: true, // <--- Add this line!
+    }
   },
   optimizeDeps: {
     include: [
@@ -32,5 +30,5 @@ export default defineConfig({
       'process',
       'stream-browserify',
     ],
-  },
+  }
 })
