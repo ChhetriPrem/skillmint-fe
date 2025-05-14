@@ -102,7 +102,7 @@ export default function App() {
                 />
                 <Route path="issuer" element={<IssuerInitializer connection={connection} />} />
                 <Route path="template" element={<BadgeTemplateCreator connection={connection} />} />
-                <Route path="mint" element={<BadgeMinter connection={connection} />} />
+
                 <Route path="badges" element={<BadgeList />} />
 
                 <Route path="accept" element={<BadgeAccepter />} />
