@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getGithubAuthUrl } from "../../utils/githubOAuth";
-import {useUserStore} from "../../store/useUserStore"
+import { useUserStore } from "../../store/useUserStore";
 import { useWallet } from "@solana/wallet-adapter-react";
-import toast, { Toaster } from 'react-hot-toast';
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-
-
-function handleGithubLogin() {
-  window.location.href = getGithubAuthUrl();
-}
-
+// Testimonials and howItWorks data
 const testimonials = [
   {
     name: "Harkirat",
@@ -56,6 +52,10 @@ const howItWorks = [
   },
 ];
 
+function handleGithubLogin() {
+  window.location.href = getGithubAuthUrl();
+}
+
 export default function SkillMintLanding() {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
@@ -64,45 +64,42 @@ export default function SkillMintLanding() {
   const setWallet = useUserStore((s) => s.setWallet);
   const wallet = useUserStore((s) => s.wallet);
   const solWallet = useWallet();
+  const navigate = useNavigate();
 
-const navigate = useNavigate();
+  async function handleConnectAndSign() {
+    setStatus("Connecting wallet...");
+    try {
+      if (!solWallet.connected) {
+        toast.error("Please connect your wallet first!");
+        setStatus("Please connect your wallet first!");
+        return;
+      }
+      const publicKey = solWallet.publicKey?.toBase58();
+      if (!publicKey) throw new Error("No wallet address");
+      setWallet({ publicKey });
 
-async function handleConnectAndSign() {
-  setStatus("Connecting wallet...");
-  try {
-    if (!solWallet.connected) {
-        throw new Error("Please connect your wallet first using the button.");
+      if (!solWallet.signMessage) throw new Error("Wallet does not support signMessage");
+      const msg = "Link your wallet to GitHub";
+      const encoded = new TextEncoder().encode(msg);
+      const sig = await solWallet.signMessage(encoded);
+      const sigBase64 = btoa(String.fromCharCode(...sig));
+      setSignature(sigBase64);
+
+      setWallet({ publicKey, signature: sigBase64 });
+
+      setStatus("Wallet connected and message signed!");
+      toast.success("Wallet linked and signed! Redirecting to dashboard...");
+
+      localStorage.setItem("onboarded", "1");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+    } catch (e) {
+      setStatus("❌ " + (e.message || "Wallet/signing error"));
+      toast.error(e.message || "Wallet/signing error");
     }
-    const publicKey = solWallet.publicKey?.toBase58();
-    if (!publicKey) throw new Error("No wallet address");
-    setWallet({ publicKey });
-
-    if (!solWallet.signMessage) throw new Error("Wallet does not support signMessage");
-    const msg = "Link your wallet to GitHub";
-    const encoded = new TextEncoder().encode(msg);
-    const sig = await solWallet.signMessage(encoded);
-    const sigBase64 = btoa(String.fromCharCode(...sig));
-    setSignature(sigBase64);
-
-    setWallet({ publicKey, signature: sigBase64 });
-
-    setStatus("Wallet connected and message signed!");
-
-    // Show modern toast
-    toast.success("Wallet linked and signed! Redirecting to dashboard...");
-
-    // Optionally, set onboarding flag
-    localStorage.setItem("onboarded", "1");
-
-    // Redirect after a short delay
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1500);
-  } catch (e) {
-    setStatus("❌ " + (e.message || "Wallet/signing error"));
-    toast.error(e.message || "Wallet/signing error");
   }
-}
 
   // Carousel logic
   const nextTestimonial = () =>
@@ -114,6 +111,34 @@ async function handleConnectAndSign() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-tr from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white overflow-x-hidden">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: "#181f2a",
+            color: "#fff",
+            border: "1px solid #8b5cf6",
+            boxShadow: "0 4px 24px 0 rgba(139,92,246,0.25)",
+            fontWeight: 600,
+            fontFamily: "inherit",
+            fontSize: "1.1rem",
+          },
+          duration: 3500,
+          success: {
+            iconTheme: {
+              primary: "#a78bfa",
+              secondary: "#181f2a",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#f43f5e",
+              secondary: "#181f2a",
+            },
+          },
+        }}
+      />
+
       {/* Animated background orbs */}
       <motion.div
         className="absolute top-[-120px] left-[-120px] w-[350px] h-[350px] rounded-full bg-purple-600 opacity-30 blur-3xl animate-blob"
@@ -374,45 +399,27 @@ async function handleConnectAndSign() {
               >
                 ×
               </button>
-              {/* You can use your original wallet linking code here */}
-              {/* <WalletLinkModal /> */}
               <div className="text-center">
                 <h3 className="text-2xl font-bold mb-4 text-purple-300">Link Your Wallet</h3>
-                <p className="text-gray-300 mb-6">
-                  Connect your Solana wallet and sign the message to link your GitHub account.
-                </p>
-                <button
-                  className="py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition"
-                  onClick={handleConnectAndSign}
-                >
-                  Connect Wallet & Sign Message
-                </button>
-                <div className="mt-4 text-sm text-purple-300 font-semibold tracking-wide animate-pulse">
-                  {/* Show status here */}
-                </div>
+                {!solWallet.connected ? (
+                  <>
+                    <WalletMultiButton />
+                    <div className="mt-4 text-pink-400 font-semibold">Please connect your wallet first.</div>
+                  </>
+                ) : (
+                  <button
+                    className="mt-6 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition"
+                    onClick={handleConnectAndSign}
+                  >
+                    Sign Message to Link
+                  </button>
+                )}
+                {status && <div className="mt-4 text-sm text-gray-300">{status}</div>}
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Global styles for blob animation */}
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% {
-            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-          }
-          50% {
-            border-radius: 30% 60% 70% 40% / 50% 70% 30% 60%;
-          }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </div>
   );
 }
