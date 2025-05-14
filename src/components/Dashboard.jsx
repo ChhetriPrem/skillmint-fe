@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 // Import your CSS file that includes Tailwind
-import "../styles/tailwind.css";
+import "dashboardExtra.css";
 
 export default function DashboardLayout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
