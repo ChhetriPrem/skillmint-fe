@@ -77,6 +77,7 @@ export default function SkillMintLanding() {
 
   // Step 2: Handle GitHub OAuth callback
   useEffect(() => {
+    console.log(`${import.meta.env.VITE_BACKEND_URL}/api/auth/github/exchange`);
     const params = new URLSearchParams(location.search);
     const code = params.get("code");
     if (code && !githubConnected) {
