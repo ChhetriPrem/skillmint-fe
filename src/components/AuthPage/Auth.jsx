@@ -230,25 +230,26 @@ export default function SkillMintLanding() {
           </button>
           <h2 className="text-2xl font-bold mb-6 text-purple-300 text-center">Onboard to SkillMint</h2>
 
-          {step === "wallet" && (
-            <>
-              <WalletMultiButton />
-              <div className="mt-4 text-gray-300 text-center">Connect your Solana wallet to continue.</div>
-            </>
-          )}
+         {step === "wallet" && (
+  <>
+    <WalletMultiButton />
+    <div className="mt-4 text-gray-300 text-center">Connect your Solana wallet to continue.</div>
+  </>
+)}
 
-          {step === "github" && (
-            <>
-              <button
-                className="w-full py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition mb-2"
-                onClick={() => { window.location.href = getGithubAuthUrl(); }}
-                disabled={loading}
-              >
-                {loading ? "Connecting..." : "Connect GitHub"}
-              </button>
-              <div className="mt-2 text-gray-300 text-center">Connect your GitHub account.</div>
-            </>
-          )}
+{step === "github" && solWallet.connected && (
+  <>
+    <button
+      className="w-full py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition mb-2"
+      onClick={() => { window.location.href = getGithubAuthUrl(); }}
+      disabled={loading}
+    >
+      {loading ? "Connecting..." : "Connect GitHub"}
+    </button>
+    <div className="mt-2 text-gray-300 text-center">Connect your GitHub account.</div>
+  </>
+)}
+
 
           {step === "linking" && (
             <>
