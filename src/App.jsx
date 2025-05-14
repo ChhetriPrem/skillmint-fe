@@ -70,8 +70,9 @@ export default function App() {
           <Router>
             <Routes>
           
-              <Route path="/auth" element={<AuthPage />} /> {/* <-- always open, not protected */}
-                              <Route path="oauth" element={<OAuthCallback />} />
+              <Route path="/auth" element={<AuthPage />} /> 
+<Route path="/oauth-callback" element={<OAuthCallback />} />
+
               <Route path="/cv/:username" element={<SkillMintCV />} /> {/* public CV */}
               <Route
                 path="/dashboard"
