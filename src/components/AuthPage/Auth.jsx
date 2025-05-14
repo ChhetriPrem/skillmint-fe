@@ -115,6 +115,7 @@ const [step, setStep] = useState("wallet");
   const navigate = useNavigate();
   const location = useLocation();
 const [sent, setSent] = useState(false);
+  const [signature, setSignature] = useState("");
 
 
 // Step 1: When wallet connects, move to GitHub step
@@ -216,7 +217,7 @@ useEffect(() => {
       const encoded = new TextEncoder().encode(challenge);
       const sig = await solWallet.signMessage(encoded);
       const sigBase64 = btoa(String.fromCharCode(...sig));
-
+setSignature(sigBase64)
       // Send signature to backend to link GitHub <-> wallet
       setStatus("Linking wallet to GitHub...");
       await axios.post(
