@@ -54,7 +54,7 @@ const howItWorks = [
 ];
 
 export default function SkillMintLanding() {
-  const [showWalletModal, setShowWalletModal] = useState(false);
+ const [showWalletModal, setShowWalletModal] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,40 +65,60 @@ export default function SkillMintLanding() {
   const navigate = useNavigate();
   const location = useLocation();
 
- 
- // Handle GitHub OAuth callback
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const code = params.get("code");
-  if (code && !githubConnected) {
-    setLoading(true);
-    setStatus("Connecting to GitHub...");
-    axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/github/exchange`, { code })
-      .then((res) => {
-        localStorage.setItem("github_access_token", res.data.accessToken);
-        localStorage.setItem("github_username", res.data.username);
-        setGithubConnected(true);
-        setGithubUsername(res.data.username);
-        setStatus("GitHub connected! Now connect your wallet.");
-        toast.success("GitHub connected!");
-        window.history.replaceState({}, document.title, location.pathname);
-        setShowWalletModal(true); // <--- THIS IS CORRECT
-      })
-      .catch(() => {
-        setStatus("GitHub connection failed.");
-        toast.error("GitHub connection failed.");
-      })
-      .finally(() => setLoading(false));
-  }
-}, [location, githubConnected]);
+  // Stepper state: 'wallet' | 'github' | 'linking' | 'done'
+  const [step, setStep] = useState("wallet");
 
+  // Step 1: When wallet connects, move to GitHub step
+  useEffect(() => {
+    if (showWalletModal && solWallet.connected && step === "wallet") {
+      setStep("github");
+    }
+  }, [showWalletModal, solWallet.connected, step]);
 
+  // Step 2: Handle GitHub OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    if (code && !githubConnected) {
+      setLoading(true);
+      setStatus("Connecting to GitHub...");
+      axios
+        .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/github/exchange`, { code })
+        .then((res) => {
+          localStorage.setItem("github_access_token", res.data.accessToken);
+          localStorage.setItem("github_username", res.data.username);
+          setGithubConnected(true);
+          setGithubUsername(res.data.username);
+          setStatus("GitHub connected! Now linking...");
+          toast.success("GitHub connected!");
+          window.history.replaceState({}, document.title, location.pathname);
+          setStep("linking");
+        })
+        .catch(() => {
+          setStatus("GitHub connection failed.");
+          toast.error("GitHub connection failed.");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [location, githubConnected]);
 
+  // Step 3: When both connected, link wallet & GitHub
+  useEffect(() => {
+    if (showWalletModal && solWallet.connected && githubConnected && step === "linking") {
+      handleConnectAndSign();
+    }
+    // eslint-disable-next-line
+  }, [showWalletModal, solWallet.connected, githubConnected, step]);
 
-  // Wallet sign message and link to GitHub
+  // Step 4: After onboarding, redirect
+  useEffect(() => {
+    if (step === "done") {
+      setTimeout(() => navigate("/dashboard"), 1200);
+    }
+  }, [step, navigate]);
+
   async function handleConnectAndSign() {
-    setStatus("Connecting wallet...");
+     setStatus("Connecting wallet...");
     setLoading(true);
     try {
       if (!githubConnected || !githubUsername) {
@@ -149,20 +169,21 @@ useEffect(() => {
       toast.success("Wallet linked to GitHub! Redirecting to dashboard...");
 
       localStorage.setItem("onboarded", "1");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
+      setStep("done");
     } catch (e) {
       setStatus("❌ " + (e.response?.data?.error || e.message || "Wallet/signing error"));
       toast.error(e.response?.data?.error || e.message || "Wallet/signing error");
+      setStep("github");
     } finally {
       setLoading(false);
     }
   }
 
-  // Carousel logic
+  // Carousel logic (unchanged)
   const nextTestimonial = () => setTestimonialIdx((i) => (i + 1) % testimonials.length);
   const prevTestimonial = () => setTestimonialIdx((i) => (i === 0 ? testimonials.length - 1 : i - 1));
+
+
 
   return (
     <div className="relative min-h-screen bg-gradient-to-tr from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white overflow-x-hidden">
@@ -193,7 +214,58 @@ useEffect(() => {
           },
         }}
       />
+  <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+        style={{ display: showWalletModal ? "flex" : "none" }}
+      >
+        <div className="bg-[#181f2a] rounded-2xl p-8 shadow-2xl min-w-[340px] max-w-full relative">
+          <button
+            className="absolute top-4 right-6 text-xl text-gray-400 hover:text-pink-400"
+            onClick={() => setShowWalletModal(false)}
+          >
+            ×
+          </button>
+          <h2 className="text-2xl font-bold mb-6 text-purple-300 text-center">Onboard to SkillMint</h2>
 
+          {step === "wallet" && (
+            <>
+              <WalletMultiButton />
+              <div className="mt-4 text-gray-300 text-center">Connect your Solana wallet to continue.</div>
+            </>
+          )}
+
+          {step === "github" && (
+            <>
+              <button
+                className="w-full py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition mb-2"
+                onClick={() => { window.location.href = getGithubAuthUrl(); }}
+                disabled={loading}
+              >
+                {loading ? "Connecting..." : "Connect GitHub"}
+              </button>
+              <div className="mt-2 text-gray-300 text-center">Connect your GitHub account.</div>
+            </>
+          )}
+
+          {step === "linking" && (
+            <>
+              <div className="text-center text-lg text-purple-300 mb-2">Linking your wallet & GitHub...</div>
+              <div className="text-center text-gray-400">{status || "Signing and linking..."}</div>
+            </>
+          )}
+
+          {step === "done" && (
+            <div className="text-center text-green-400 font-bold text-lg">Onboarding complete! Redirecting...</div>
+          )}
+
+          {status && step !== "done" && (
+            <div className="mt-4 text-center text-pink-300">{status}</div>
+          )}
+        </div>
+      </motion.div>
       {/* Animated background orbs */}
       <motion.div
         className="absolute top-[-120px] left-[-120px] w-[350px] h-[350px] rounded-full bg-purple-600 opacity-30 blur-3xl animate-blob"
