@@ -3,11 +3,12 @@ import react from '@vitejs/plugin-react'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import fs from 'fs'
 import path from 'path'
-
+import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: './', 
   plugins: [
     react(),
+        tailwindcss(),
     nodePolyfills({
       globals: {
         Buffer: true,
