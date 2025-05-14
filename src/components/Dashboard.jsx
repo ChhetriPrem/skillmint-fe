@@ -1,5 +1,6 @@
 // src/components/Dashboard.jsx
 import { useUserStore } from "../store/useUserStore";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, Outlet, useLocation } from "react-router-dom";
 
 export default function DashboardLayout() {
   return (
