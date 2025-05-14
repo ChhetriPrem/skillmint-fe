@@ -442,7 +442,7 @@ setSignature(sigBase64)
         </h2>
         <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
           <img
-            src="/image.png"
+            src="https://i.ibb.co/BVwwrwQV/Screenshot-2025-05-14-193004.png"
             alt="SkillMint Wallet Linking"
             className="rounded-2xl shadow-2xl w-full md:w-1/2"
           />
