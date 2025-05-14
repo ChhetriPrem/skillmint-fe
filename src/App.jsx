@@ -148,7 +148,7 @@ export default function App() {
                 <Route path="oauth" element={<OAuthCallback />} />
                 <Route path="accept" element={<BadgeAccepter />} />
               </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/auth" replace />} />
             </Routes>
           </Router>
         </WalletModalProvider>
