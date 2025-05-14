@@ -77,14 +77,14 @@ export default function SkillMintLanding() {
 
   // Step 2: Handle GitHub OAuth callback
   useEffect(() => {
-    console.log(`${import.meta.env.VITE_BACKEND_URL}/api/auth/github/exchange`);
+    console.log(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`);
     const params = new URLSearchParams(location.search);
     const code = params.get("code");
     if (code && !githubConnected) {
       setLoading(true);
       setStatus("Connecting to GitHub...");
       axios
-        .post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/github/exchange`, { code })
+        .post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, { code })
         .then((res) => {
           localStorage.setItem("github_access_token", res.data.accessToken);
           localStorage.setItem("github_username", res.data.username);
@@ -141,7 +141,7 @@ export default function SkillMintLanding() {
       // Get challenge from backend
       setStatus("Getting challenge...");
       const { data: challengeData } = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/auth/github/challenge`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/github/challenge`,
         { github_username: githubUsername }
       );
       const challenge = challengeData.challenge;
@@ -156,7 +156,7 @@ export default function SkillMintLanding() {
       // Send signature to backend to link GitHub <-> wallet
       setStatus("Linking wallet to GitHub...");
       await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/auth/github/link`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/github/link`,
         {
           github_username: githubUsername,
           wallet_address: publicKey,
