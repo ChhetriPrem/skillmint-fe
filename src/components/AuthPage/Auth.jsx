@@ -29,18 +29,19 @@ const testimonials = [
     img: "https://avatars.githubusercontent.com/u/654321?v=4",
   },
 ];
-  function sendToExtensionAPI(signature, walletAddress) {
-    window.postMessage(
-      {
-        action: "linkGitHubWallet",
-        signature,
-        walletAddress,
-      },
-      "*"
-    );
-    setStatus("Sent to extension!");
-    setSent(true);
-  }
+function sendToExtensionAPI(signature, walletAddress) {
+  window.postMessage(
+    {
+      action: "linkGitHubWallet",
+      signature,
+      walletAddress,
+    },
+    "*"
+  );
+  setStatus("Sent to extension!");
+  setSent(true);
+}
+
 const howItWorks = [
   {
     title: "Connect GitHub & Wallet",
@@ -102,7 +103,7 @@ function ExtensionInfoModal({ isOpen, onClose }) {
 
 export default function SkillMintLanding() {
   const [showExtensionModal, setShowExtensionModal] = useState(false);
-
+const [step, setStep] = useState("wallet");
  const [showWalletModal, setShowWalletModal] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [status, setStatus] = useState("");
@@ -113,60 +114,74 @@ export default function SkillMintLanding() {
   const solWallet = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
+const [sent, setSent] = useState(false);
 
   // Stepper state: 'wallet' | 'github' | 'linking' | 'done'
   const [step, setStep] = useState("wallet");
+// Step 1: When wallet connects, move to GitHub step
+useEffect(() => {
+  if (showWalletModal && solWallet.connected && step === "wallet") {
+    setStep("github");
+  }
+}, [showWalletModal, solWallet.connected, step]);
 
-  // Step 1: When wallet connects, move to GitHub step
-  useEffect(() => {
-    if (showWalletModal && solWallet.connected && step === "wallet") {
-      setStep("github");
-    }
-  }, [showWalletModal, solWallet.connected, step]);
+// Step 2: Handle GitHub OAuth callback
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  if (code && !githubConnected) {
+    setLoading(true);
+    setStatus("Connecting to GitHub...");
+    axios
+      .post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, { code })
+      .then((res) => {
+        localStorage.setItem("github_access_token", res.data.accessToken);
+        localStorage.setItem("github_username", res.data.username);
+        setGithubConnected(true);
+        setGithubUsername(res.data.username);
+        setStatus("GitHub connected! Now linking...");
+        toast.success("GitHub connected!");
+        window.history.replaceState({}, document.title, location.pathname);
+        setStep("linking");
+      })
+      .catch(() => {
+        setStatus("GitHub connection failed.");
+        toast.error("GitHub connection failed.");
+      })
+      .finally(() => setLoading(false));
+  }
+}, [location, githubConnected, toast]);
 
-  // Step 2: Handle GitHub OAuth callback
-  useEffect(() => {
-    console.log(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`);
-    const params = new URLSearchParams(location.search);
-    const code = params.get("code");
-    if (code && !githubConnected) {
-      setLoading(true);
-      setStatus("Connecting to GitHub...");
-      axios
-        .post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, { code })
-        .then((res) => {
-          localStorage.setItem("github_access_token", res.data.accessToken);
-          localStorage.setItem("github_username", res.data.username);
-          setGithubConnected(true);
-          setGithubUsername(res.data.username);
-          setStatus("GitHub connected! Now linking...");
-              sendToExtensionAPI(sig, walletAddress);
-          toast.success("GitHub connected!");
-          window.history.replaceState({}, document.title, location.pathname);
-          setStep("linking");
-        })
-        .catch(() => {
-          setStatus("GitHub connection failed.");
-          toast.error("GitHub connection failed.");
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [location, githubConnected]);
+// Step 3: When both connected, link wallet & GitHub (sign message)
+useEffect(() => {
+  if (
+    showWalletModal &&
+    solWallet.connected &&
+    githubConnected &&
+    step === "linking" &&
+    !signature // prevent duplicate signing
+  ) {
+    handleConnectAndSign();
+  }
+  // eslint-disable-next-line
+}, [showWalletModal, solWallet.connected, githubConnected, step, signature]);
 
-  // Step 3: When both connected, link wallet & GitHub
-  useEffect(() => {
-    if (showWalletModal && solWallet.connected && githubConnected && step === "linking") {
-      handleConnectAndSign();
-    }
-    // eslint-disable-next-line
-  }, [showWalletModal, solWallet.connected, githubConnected, step]);
+// Step 3b: After signing, send to extension (once)
+useEffect(() => {
+  const walletAddress = solWallet.publicKey?.toBase58();
+  if (walletAddress && signature && !sent) {
+    sendToExtensionAPI(signature, walletAddress);
+    setSent(true);
+  }
+}, [solWallet.publicKey, signature, sent]);
 
-  // Step 4: After onboarding, redirect
-  useEffect(() => {
-    if (step === "done") {
-      setTimeout(() => navigate("/dashboard"), 1200);
-    }
-  }, [step, navigate]);
+// Step 4: After onboarding, redirect to dashboard
+useEffect(() => {
+  if (step === "done") {
+    setTimeout(() => navigate("/dashboard"), 1200);
+  }
+}, [step, navigate]);
+
 
   async function handleConnectAndSign() {
      setStatus("Connecting wallet...");
