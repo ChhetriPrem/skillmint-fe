@@ -34,7 +34,7 @@ export default function IssuerInitializer({ connection }) {
 
       // The authority is always the connected wallet
       const authorityPubkey = wallet.publicKey;
-      const issuerPda = await findIssuerPDA(authorityPubkey);
+      const [issuerPda] = await findIssuerPDA(authorityPubkey);
       const data = serializeInitializeIssuerArgs(issuerName, website);
 
       // Order must match Rust struct: issuer, authority, system_program
