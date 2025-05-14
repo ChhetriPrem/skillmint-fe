@@ -26,25 +26,25 @@ export default function BadgeTemplateCreator({ connection }) {
 
   const handleCreate = async () => {
     setLoading(true);
-    setStatus("🔗 Connecting to Solana...");
+    setStatus(" Connecting to Solana...");
     try {
       if (!wallet.connected) {
-        setStatus("⚠️ Please connect your wallet first.");
+        setStatus(" Please connect your wallet first.");
         setLoading(false);
         return;
       }
       if (!templateName || !description || !imageFile) {
-        setStatus("⚠️ All fields are required.");
+        setStatus("⚠ All fields are required.");
         setLoading(false);
         return;
       }
       if (templateName.length > 64) {
-        setStatus("⚠️ Template name must be at most 64 characters.");
+        setStatus("⚠ Template name must be at most 64 characters.");
         setLoading(false);
         return;
       }
       if (description.length > 256) {
-        setStatus("⚠️ Description must be at most 256 characters.");
+        setStatus("⚠ Description must be at most 256 characters.");
         setLoading(false);
         return;
       }
@@ -78,7 +78,7 @@ export default function BadgeTemplateCreator({ connection }) {
 
       setStatus(
         <>
-          <span role="img" aria-label="success">✅</span> 
+          <span role="img" aria-label="success"></span> 
           <span>Template created on-chain!</span>
           <br />
           <a
@@ -101,7 +101,7 @@ export default function BadgeTemplateCreator({ connection }) {
         formData.append("templateName", templateName);
         formData.append("description", description);
         formData.append("file", imageFile);
-
+console.log("url: ",import.meta.env.VITE_BACKEND_URL)
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/create-template`, {
           method: "POST",
           body: formData,
@@ -112,7 +112,7 @@ export default function BadgeTemplateCreator({ connection }) {
         }
         ({ metadataUri, imageUrl } = await res.json());
       } catch (e) {
-        setStatus(`❌ Image/metadata upload failed: ${e.message}`);
+        setStatus(` Image/metadata upload failed: ${e.message}`);
         setLoading(false);
         return;
       }
