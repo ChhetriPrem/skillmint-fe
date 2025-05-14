@@ -66,30 +66,35 @@ export default function SkillMintLanding() {
   const location = useLocation();
 
   // Handle GitHub OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const code = params.get("code");
-    if (code && !githubConnected) {
-      setLoading(true);
-      setStatus("Connecting to GitHub...");
-      axios
-        .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/github/exchange`, { code })
-        .then((res) => {
-          localStorage.setItem("github_access_token", res.data.accessToken);
-          localStorage.setItem("github_username", res.data.username);
-          setGithubConnected(true);
-          setGithubUsername(res.data.username);
-          setStatus("GitHub connected! Now connect your wallet.");
-          toast.success("GitHub connected!");
-          window.history.replaceState({}, document.title, location.pathname);
-        })
-        .catch(() => {
-          setStatus("GitHub connection failed.");
-          toast.error("GitHub connection failed.");
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [location, githubConnected]);
+ // Handle GitHub OAuth callback
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  if (code && !githubConnected) {
+    setLoading(true);
+    setStatus("Connecting to GitHub...");
+    axios
+      .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/github/exchange`, { code })
+      .then((res) => {
+        localStorage.setItem("github_access_token", res.data.accessToken);
+        localStorage.setItem("github_username", res.data.username);
+        setGithubConnected(true);
+        setGithubUsername(res.data.username);
+        setStatus("GitHub connected! Now connect your wallet.");
+        toast.success("GitHub connected!");
+        window.history.replaceState({}, document.title, location.pathname);
+        setShowWalletModal(true); 
+      })
+      .catch(() => {
+        setStatus("GitHub connection failed.");
+        toast.error("GitHub connection failed.");
+      })
+      .finally(() => setLoading(false));
+  }
+}, [location, githubConnected]);
+
+// REMOVE the "auto open modal" useEffect you added before!
+
 useEffect(() => {
   // Auto-open wallet modal if GitHub is connected, but not onboarded
   if (githubConnected && !localStorage.getItem("onboarded")) {
