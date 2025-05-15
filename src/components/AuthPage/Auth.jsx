@@ -72,7 +72,7 @@ function ExtensionInfoModal({ isOpen, onClose }) {
           Due to lack of funds, we couldn’t publish the extension on the Chrome Web Store because of the $5 registration fee.
         </p>
         <p className="mb-4 text-sm">
-          Please download the extension pack from Google Drive and install it manually:
+          Please download the extension pack from Github repo and install it manually:
         </p>
         <a
           href="https://github.com/ChhetriPrem/skillmint-extension.git"
