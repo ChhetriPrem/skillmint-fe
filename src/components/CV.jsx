@@ -70,7 +70,7 @@ const sampleProfile = {
   ],
 };
 
-export default function CVApp() {
+export default function SkillMintCV() {
   // State management
   const [isFirstVisit, setIsFirstVisit] = useState(true);
   const [isEditing, setIsEditing] = useState(true);
