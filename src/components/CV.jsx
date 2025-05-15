@@ -71,7 +71,7 @@ export default function SkillMintCV() {
 
       // Construct the Blink URL 
       const cid = data.cid.split("/ipfs/").pop(); // Use data.cid here
-    const blink = `${import.meta.env.VITE_BACKEND_URL}/api/users/publiccv?cid=${cid}`
+    const blink = `https://skillmint-fe.vercel.app/publiccv?cid=${cid}`
 
       setBlinkUrl(blink);
       setQrVisible(true);
