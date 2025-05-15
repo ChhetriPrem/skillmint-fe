@@ -36,13 +36,13 @@ export default function SkillMintCV() {
   const [blinkUrl, setBlinkUrl] = useState("");
   const [qrVisible, setQrVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
-  useEffect(() => {
-    const githubUsername = localStorage.getItem("github_username");
-    if (!githubUsername) return;
 
-  useEffect(() => {
-  fetchBackendData("renao").then((data) => setBackendData(data));
+useEffect(() => {
+  const githubUsername = localStorage.getItem("github_username");
+  if (!githubUsername) return;
+  fetchBackendData(githubUsername).then((data) => setBackendData(data));
 }, []);
+
   // Load from localStorage
   useEffect(() => {
     const hasExistingData = localStorage.getItem("cv-data");
