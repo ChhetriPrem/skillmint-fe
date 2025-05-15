@@ -11,7 +11,7 @@ import { Toaster } from 'react-hot-toast';
 // Import your pages/components
 import AuthPage from "./components/AuthPage/Auth";      
 import SkillMintCV from "./components/CV";           
-import PublicCV from "./components/PublicCV";    
+import PublicCV from "./components/CVPublic";    
 import DashboardLayout from "./components/Dashboard";
 import IssuerInitializer from "./components/IssuerInitializer";
 import BadgeTemplateCreator from "./components/BadgeTemplateCreator";
