@@ -65,7 +65,7 @@ useEffect(() => {
         `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadcv`,
         {
           ...profile,
-          githubUsername: backendData.githubUsername,
+          githubUsername: backendData?.githubUsername,
           githubUrl: backendData.githubUrl,
           wallet: backendData.wallet,
           badges: backendData.badges,
@@ -384,7 +384,7 @@ useEffect(() => {
                 className="w-32 h-32 rounded-full object-cover border-4 border-blue-600 shadow-lg"
               />
               <h2 className="text-3xl font-bold mt-4 text-blue-200">
-                {profile.name || backendData.githubUsername}
+                {profile.name || backendData?.githubUsername}
               </h2>
               <div className="text-lg text-purple-300 font-semibold">
                 {profile.tagline}
@@ -414,7 +414,7 @@ useEffect(() => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-blue-300 hover:text-blue-400 transition"
               >
-                Github: {backendData.githubUsername}
+                Github: {backendData?.githubUsername}
               </a>
               {profile.email && (
                 <a
