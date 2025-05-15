@@ -70,9 +70,11 @@ export default function SkillMintCV() {
       setIpfsCid(data.cid);
 
       // Construct the Blink URL for this CV
+      const cid = data.cid.split("/ipfs/").pop(); // Use data.cid here
       const blink = `https://blink.solana.com/?action=${encodeURIComponent(
-        `${import.meta.env.VITE_BACKEND_URL}/api/blink-cv?cid=${data.cid}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/blink-cv?cid=${cid}`
       )}`;
+
       setBlinkUrl(blink);
       setQrVisible(true);
       alert("Saved to Pinata! QR code ready.");
