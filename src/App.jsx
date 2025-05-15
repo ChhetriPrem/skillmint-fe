@@ -20,7 +20,7 @@ import BadgeList from "./components/BadgesList";
 import BadgeAccepter from "./components/AcceptBadge";
 import OAuthCallback from "./components/AuthPage/Auth";
 
-// ProtectedRoute component (recommended pattern[2][5][7])
+// ProtectedRoute component pattern[2][5][7]
 function ProtectedRoute() {
   const location = useLocation();
   const isOnboarded = localStorage.getItem("onboarded") === "1";
