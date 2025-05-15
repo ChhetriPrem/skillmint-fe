@@ -30,7 +30,6 @@ const testimonials = [
   },
 ];
 
-
 const howItWorks = [
   {
     title: "Connect GitHub & Wallet",
@@ -54,7 +53,6 @@ const howItWorks = [
   },
 ];
 
-
 function ExtensionInfoModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
@@ -67,23 +65,28 @@ function ExtensionInfoModal({ isOpen, onClose }) {
         >
           ×
         </button>
-        <h2 className="text-xl font-bold mb-2 text-red-600">Extension Not on Web Store</h2>
+        <h2 className="text-xl font-bold mb-2 text-red-600">
+          Extension Not on Web Store
+        </h2>
         <p className="mb-3 text-sm">
-          Due to lack of funds, we couldn’t publish the extension on the Chrome Web Store because of the $5 registration fee.
+          Due to lack of funds, we couldn’t publish the extension on the Chrome
+          Web Store because of the $5 registration fee.
         </p>
         <p className="mb-4 text-sm">
-          Please download the extension pack from Github repo and install it manually:
+          Please download the extension pack from Google Drive and install it
+          manually:
         </p>
         <a
-          href="https://github.com/ChhetriPrem/skillmint-extension.git"
+          href="https://drive.google.com/YOUR_DRIVE_LINK_HERE"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg transition"
         >
-          Clone from repo
+          📥 Download from Google Drive
         </a>
         <p className="text-xs text-gray-500 mt-4">
-          Go to <b>chrome://extensions</b>, enable <b>Developer Mode</b>, click <b>“Load unpacked”</b>, and select the extracted folder.
+          Go to <b>chrome://extensions</b>, enable <b>Developer Mode</b>, click{" "}
+          <b>“Load unpacked”</b>, and select the extracted folder.
         </p>
       </div>
     </div>
@@ -92,100 +95,105 @@ function ExtensionInfoModal({ isOpen, onClose }) {
 
 export default function SkillMintLanding() {
   const [showExtensionModal, setShowExtensionModal] = useState(false);
-const [step, setStep] = useState("wallet");
- const [showWalletModal, setShowWalletModal] = useState(false);
+  const [step, setStep] = useState("wallet");
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
-  const [githubConnected, setGithubConnected] = useState(!!localStorage.getItem("github_access_token"));
-  const [githubUsername, setGithubUsername] = useState(localStorage.getItem("github_username") || "");
+  const [githubConnected, setGithubConnected] = useState(
+    !!localStorage.getItem("github_access_token")
+  );
+  const [githubUsername, setGithubUsername] = useState(
+    localStorage.getItem("github_username") || ""
+  );
   const setWallet = useUserStore((s) => s.setWallet);
-  
+
   const solWallet = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
-const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState(false);
   const [signature, setSignature] = useState("");
 
+  // Step 1: When wallet connects, move to GitHub step
+  useEffect(() => {
+    if (showWalletModal && solWallet.connected && step === "wallet") {
+      setStep("github");
+    }
+  }, [showWalletModal, solWallet.connected, step]);
 
-// Step 1: When wallet connects, move to GitHub step
-useEffect(() => {
-  if (showWalletModal && solWallet.connected && step === "wallet") {
-    setStep("github");
-  }
-}, [showWalletModal, solWallet.connected, step]);
+  // Step 2: Handle GitHub OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    if (code && !githubConnected) {
+      setLoading(true);
+      setStatus("Connecting to GitHub...");
+      axios
+        .post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, {
+          code,
+        })
+        .then((res) => {
+          localStorage.setItem("github_access_token", res.data.accessToken);
+          localStorage.setItem("github_username", res.data.username);
+          setGithubConnected(true);
+          setGithubUsername(res.data.username);
+          setStatus("GitHub connected! Now linking...");
+          toast.success("GitHub connected!");
+          window.history.replaceState({}, document.title, location.pathname);
+          setStep("linking");
+        })
+        .catch(() => {
+          setStatus("GitHub connection failed.");
+          toast.error("GitHub connection failed.");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [location, githubConnected, toast]);
 
-// Step 2: Handle GitHub OAuth callback
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const code = params.get("code");
-  if (code && !githubConnected) {
-    setLoading(true);
-    setStatus("Connecting to GitHub...");
-    axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, { code })
-      .then((res) => {
-        localStorage.setItem("github_access_token", res.data.accessToken);
-        localStorage.setItem("github_username", res.data.username);
-        setGithubConnected(true);
-        setGithubUsername(res.data.username);
-        setStatus("GitHub connected! Now linking...");
-        toast.success("GitHub connected!");
-        window.history.replaceState({}, document.title, location.pathname);
-        setStep("linking");
-      })
-      .catch(() => {
-        setStatus("GitHub connection failed.");
-        toast.error("GitHub connection failed.");
-      })
-      .finally(() => setLoading(false));
-  }
-}, [location, githubConnected, toast]);
+  // Step 3: When both connected, link wallet & GitHub (sign message)
+  useEffect(() => {
+    if (
+      showWalletModal &&
+      solWallet.connected &&
+      githubConnected &&
+      step === "linking" &&
+      !signature // prevent duplicate signing
+    ) {
+      handleConnectAndSign();
+    }
+    // eslint-disable-next-line
+  }, [showWalletModal, solWallet.connected, githubConnected, step, signature]);
 
-// Step 3: When both connected, link wallet & GitHub (sign message)
-useEffect(() => {
-  if (
-    showWalletModal &&
-    solWallet.connected &&
-    githubConnected &&
-    step === "linking" &&
-    !signature // prevent duplicate signing
-  ) {
-    handleConnectAndSign();
-  }
-  // eslint-disable-next-line
-}, [showWalletModal, solWallet.connected, githubConnected, step, signature]);
+  // Step 3b: After signing, send to extension (once)
+  useEffect(() => {
+    const walletAddress = solWallet.publicKey?.toBase58();
+    if (walletAddress && signature && !sent) {
+      sendToExtensionAPI(githubUsername, walletAddress);
+      setSent(true);
+    }
+  }, [solWallet.publicKey, signature, sent]);
 
-// Step 3b: After signing, send to extension (once)
-useEffect(() => {
-  const walletAddress = solWallet.publicKey?.toBase58();
-  if (walletAddress && signature && !sent) {
-    sendToExtensionAPI(signature, walletAddress);
+  // Step 4: After onboarding, redirect to dashboard
+  useEffect(() => {
+    if (step === "done") {
+      setTimeout(() => navigate("/dashboard"), 1200);
+    }
+  }, [step, navigate]);
+
+  function sendToExtensionAPI(signature, walletAddress) {
+    window.postMessage(
+      {
+        action: "linkGitHubWallet",
+        githubUsername,
+        walletAddress,
+      },
+      "*"
+    );
+    setStatus("Sent to extension!");
     setSent(true);
   }
-}, [solWallet.publicKey, signature, sent]);
-
-// Step 4: After onboarding, redirect to dashboard
-useEffect(() => {
-  if (step === "done") {
-    setTimeout(() => navigate("/dashboard"), 1200);
-  }
-}, [step, navigate]);
-
-function sendToExtensionAPI(signature, walletAddress) {
-  window.postMessage(
-    {
-      action: "linkGitHubWallet",
-      signature,
-      walletAddress,
-    },
-    "*"
-  );
-  setStatus("Sent to extension!");
-  setSent(true);
-}
   async function handleConnectAndSign() {
-     setStatus("Connecting wallet...");
+    setStatus("Connecting wallet...");
     setLoading(true);
     try {
       if (!githubConnected || !githubUsername) {
@@ -214,22 +222,20 @@ function sendToExtensionAPI(signature, walletAddress) {
 
       // Sign challenge
       setStatus("Signing challenge...");
-      if (!solWallet.signMessage) throw new Error("Wallet does not support signMessage");
+      if (!solWallet.signMessage)
+        throw new Error("Wallet does not support signMessage");
       const encoded = new TextEncoder().encode(challenge);
       const sig = await solWallet.signMessage(encoded);
       const sigBase64 = btoa(String.fromCharCode(...sig));
-setSignature(sigBase64)
+      setSignature(sigBase64);
       // Send signature to backend to link GitHub <-> wallet
       setStatus("Linking wallet to GitHub...");
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/github/link`,
-        {
-          github_username: githubUsername,
-          wallet_address: publicKey,
-          signature: sigBase64,
-          challenge,
-        }
-      );
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/github/link`, {
+        github_username: githubUsername,
+        wallet_address: publicKey,
+        signature: sigBase64,
+        challenge,
+      });
 
       setWallet({ publicKey, signature: sigBase64, githubUsername });
       setStatus("Wallet connected and GitHub linked!");
@@ -238,8 +244,12 @@ setSignature(sigBase64)
       localStorage.setItem("onboarded", "1");
       setStep("done");
     } catch (e) {
-      setStatus("❌ " + (e.response?.data?.error || e.message || "Wallet/signing error"));
-      toast.error(e.response?.data?.error || e.message || "Wallet/signing error");
+      setStatus(
+        "❌ " + (e.response?.data?.error || e.message || "Wallet/signing error")
+      );
+      toast.error(
+        e.response?.data?.error || e.message || "Wallet/signing error"
+      );
       setStep("github");
     } finally {
       setLoading(false);
@@ -247,10 +257,10 @@ setSignature(sigBase64)
   }
 
   // Carousel logic (unchanged)
-  const nextTestimonial = () => setTestimonialIdx((i) => (i + 1) % testimonials.length);
-  const prevTestimonial = () => setTestimonialIdx((i) => (i === 0 ? testimonials.length - 1 : i - 1));
-
-
+  const nextTestimonial = () =>
+    setTestimonialIdx((i) => (i + 1) % testimonials.length);
+  const prevTestimonial = () =>
+    setTestimonialIdx((i) => (i === 0 ? testimonials.length - 1 : i - 1));
 
   return (
     <div className="relative min-h-screen bg-gradient-to-tr from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white overflow-x-hidden">
@@ -281,7 +291,7 @@ setSignature(sigBase64)
           },
         }}
       />
-  <motion.div
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -295,38 +305,51 @@ setSignature(sigBase64)
           >
             ×
           </button>
-          <h2 className="text-2xl font-bold mb-6 text-purple-300 text-center">Onboard to SkillMint</h2>
+          <h2 className="text-2xl font-bold mb-6 text-purple-300 text-center">
+            Onboard to SkillMint
+          </h2>
 
-         {step === "wallet" && (
-  <>
-    <WalletMultiButton />
-    <div className="mt-4 text-gray-300 text-center">Connect your Solana wallet to continue.</div>
-  </>
-)}
+          {step === "wallet" && (
+            <>
+              <WalletMultiButton />
+              <div className="mt-4 text-gray-300 text-center">
+                Connect your Solana wallet to continue.
+              </div>
+            </>
+          )}
 
-{step === "github" && solWallet.connected && (
-  <>
-    <button
-      className="w-full py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition mb-2"
-      onClick={() => { window.location.href = getGithubAuthUrl(); }}
-      disabled={loading}
-    >
-      {loading ? "Connecting..." : "Connect GitHub"}
-    </button>
-    <div className="mt-2 text-gray-300 text-center">Connect your GitHub account.</div>
-  </>
-)}
-
+          {step === "github" && solWallet.connected && (
+            <>
+              <button
+                className="w-full py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition mb-2"
+                onClick={() => {
+                  window.location.href = getGithubAuthUrl();
+                }}
+                disabled={loading}
+              >
+                {loading ? "Connecting..." : "Connect GitHub"}
+              </button>
+              <div className="mt-2 text-gray-300 text-center">
+                Connect your GitHub account.
+              </div>
+            </>
+          )}
 
           {step === "linking" && (
             <>
-              <div className="text-center text-lg text-purple-300 mb-2">Linking your wallet & GitHub...</div>
-              <div className="text-center text-gray-400">{status || "Signing and linking..."}</div>
+              <div className="text-center text-lg text-purple-300 mb-2">
+                Linking your wallet & GitHub...
+              </div>
+              <div className="text-center text-gray-400">
+                {status || "Signing and linking..."}
+              </div>
             </>
           )}
 
           {step === "done" && (
-            <div className="text-center text-green-400 font-bold text-lg">Onboarding complete! Redirecting...</div>
+            <div className="text-center text-green-400 font-bold text-lg">
+              Onboarding complete! Redirecting...
+            </div>
           )}
 
           {status && step !== "done" && (
@@ -364,25 +387,28 @@ setSignature(sigBase64)
           transition={{ delay: 0.3, duration: 0.8 }}
           className="max-w-2xl mx-auto text-lg md:text-2xl text-gray-200 mb-10"
         >
-          On-chain, verifiable skill badges for Solana developers.<br />
+          On-chain, verifiable skill badges for Solana developers.
+          <br />
           <span className="text-pink-400 font-semibold">
             Showcase your real skills. Get recognized. Own your reputation.
           </span>
         </motion.p>
 
         <div className="bg-blue-50 border border-blue-300 text-blue-800 rounded-lg px-5 py-4 mb-6 shadow-sm text-center max-w-2xl mx-auto">
-  <p className="text-sm sm:text-base font-medium">
-    🔐 <span className="font-semibold">Please add the SkillMint Extension before logging in.</span>
-    <br />
-    <span
-      onClick={() => setShowExtensionModal(true)}
-      className="inline-block mt-2 text-blue-600  cursor-pointer hover:text-blue-800 transition"
-    >
-      Why isn’t the extension on the Chrome Web Store? - Click here
-      
-    </span>
-  </p>
-</div>
+          <p className="text-sm sm:text-base font-medium">
+            🔐{" "}
+            <span className="font-semibold">
+              Please add the SkillMint Extension before logging in.
+            </span>
+            <br />
+            <span
+              onClick={() => setShowExtensionModal(true)}
+              className="inline-block mt-2 text-blue-600  cursor-pointer hover:text-blue-800 transition"
+            >
+              Why isn’t the extension on the Chrome Web Store? - Click here
+            </span>
+          </p>
+        </div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -390,19 +416,17 @@ setSignature(sigBase64)
           transition={{ delay: 0.5, duration: 0.7 }}
           className="flex flex-col md:flex-row gap-4 justify-center items-center"
         >
-  
+          <ExtensionInfoModal
+            isOpen={showExtensionModal}
+            onClose={() => setShowExtensionModal(false)}
+          />
 
-<ExtensionInfoModal
-  isOpen={showExtensionModal}
-  onClose={() => setShowExtensionModal(false)}
-/>
-
-<button
-  onClick={() => setShowWalletModal(true)}
-  className="py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition duration-300"
->
-  Connect GitHub & Wallet
-</button>
+          <button
+            onClick={() => setShowWalletModal(true)}
+            className="py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition duration-300"
+          >
+            Connect GitHub & Wallet
+          </button>
 
           <a
             href="#demo"
@@ -429,7 +453,9 @@ setSignature(sigBase64)
               className="bg-[#181f2a]/80 rounded-2xl p-6 shadow-xl flex flex-col items-center"
             >
               <div className="text-4xl mb-4">{step.icon}</div>
-              <h3 className="font-bold text-xl mb-2 text-purple-300">{step.title}</h3>
+              <h3 className="font-bold text-xl mb-2 text-purple-300">
+                {step.title}
+              </h3>
               <p className="text-gray-300">{step.desc}</p>
             </motion.div>
           ))}
@@ -471,16 +497,19 @@ setSignature(sigBase64)
         </h2>
         <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
           <img
-            src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*6Cq5sNQKUvT1oKIslU9WvQ.png" 
+            src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*6Cq5sNQKUvT1oKIslU9WvQ.png"
             alt="SkillMint Extension"
             className="rounded-xl shadow-xl w-full md:w-1/3"
           />
           <div className="flex-1 text-lg text-gray-200">
             <p>
-              <b>Seamlessly link your wallet, sign messages, and manage badges directly from your browser.</b>
+              <b>
+                Seamlessly link your wallet, sign messages, and manage badges
+                directly from your browser.
+              </b>
             </p>
             <a
-              href="https://github.com/ChhetriPrem/skillmint-extension.git"
+              href="https://drive.google.com/drive/folders/1iAnrx6AB4PJy3fH6N6xGjSpDHTsxzPI9"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-block py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg hover:brightness-110 transition"
@@ -509,9 +538,15 @@ setSignature(sigBase64)
               alt={testimonials[testimonialIdx].name}
               className="w-16 h-16 rounded-full mx-auto mb-4 border-4 border-purple-500"
             />
-            <p className="text-xl text-gray-100 mb-4">"{testimonials[testimonialIdx].text}"</p>
-            <div className="font-bold text-purple-300">{testimonials[testimonialIdx].name}</div>
-            <div className="text-sm text-pink-300">{testimonials[testimonialIdx].role}</div>
+            <p className="text-xl text-gray-100 mb-4">
+              "{testimonials[testimonialIdx].text}"
+            </p>
+            <div className="font-bold text-purple-300">
+              {testimonials[testimonialIdx].name}
+            </div>
+            <div className="text-sm text-pink-300">
+              {testimonials[testimonialIdx].role}
+            </div>
           </motion.div>
           <div className="flex gap-4 mt-6">
             <button
@@ -541,19 +576,24 @@ setSignature(sigBase64)
           <div>
             <div className="font-bold text-pink-300">Is my data safe?</div>
             <div className="text-gray-300">
-              All wallet signatures are local. No private keys ever leave your device. We use industry-standard security protocols.
+              All wallet signatures are local. No private keys ever leave your
+              device. We use industry-standard security protocols.
             </div>
           </div>
           <div>
-            <div className="font-bold text-pink-300">What if I lose my wallet?</div>
+            <div className="font-bold text-pink-300">
+              What if I lose my wallet?
+            </div>
             <div className="text-gray-300">
-              Badges are on-chain-recoverable with your wallet. Your credentials are always yours.
+              Badges are on-chain-recoverable with your wallet. Your credentials
+              are always yours.
             </div>
           </div>
           <div>
             <div className="font-bold text-pink-300">Who can issue badges?</div>
             <div className="text-gray-300">
-              Verified orgs and trusted reviewers. You decide which badges to accept.
+              Verified orgs and trusted reviewers. You decide which badges to
+              accept.
             </div>
           </div>
         </div>
@@ -589,9 +629,30 @@ setSignature(sigBase64)
             </button>
           </form>
           <div className="flex gap-4 text-2xl">
-            <a href="https://github.com/skillmint" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400">🐙</a>
-            <a href="https://twitter.com/skillmint" target="_blank" rel="noopener noreferrer" className="hover:text-pink-400">🐦</a>
-            <a href="https://discord.gg/skillmint" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400">💬</a>
+            <a
+              href="https://github.com/skillmint"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-purple-400"
+            >
+              🐙
+            </a>
+            <a
+              href="https://twitter.com/skillmint"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-pink-400"
+            >
+              🐦
+            </a>
+            <a
+              href="https://discord.gg/skillmint"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-purple-400"
+            >
+              💬
+            </a>
           </div>
         </div>
       </footer>
@@ -618,11 +679,13 @@ setSignature(sigBase64)
                 ×
               </button>
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-4 text-purple-300">Link Your GitHub & Wallet</h3>
+                <h3 className="text-2xl font-bold mb-4 text-purple-300">
+                  Link Your GitHub & Wallet
+                </h3>
                 {/* 1. GitHub Connect */}
                 {!githubConnected ? (
                   <button
-                    onClick={() => window.location.href = getGithubAuthUrl()}
+                    onClick={() => (window.location.href = getGithubAuthUrl())}
                     className="mt-6 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 shadow-lg hover:brightness-110 transition"
                     disabled={loading}
                   >
@@ -632,7 +695,9 @@ setSignature(sigBase64)
                   // 2. Wallet Connect
                   <>
                     <WalletMultiButton />
-                    <div className="mt-4 text-pink-400 font-semibold">Please connect your wallet.</div>
+                    <div className="mt-4 text-pink-400 font-semibold">
+                      Please connect your wallet.
+                    </div>
                   </>
                 ) : (
                   // 3. Sign Message
@@ -644,7 +709,9 @@ setSignature(sigBase64)
                     {loading ? "Processing..." : "Sign Message to Link"}
                   </button>
                 )}
-                {status && <div className="mt-4 text-sm text-gray-300">{status}</div>}
+                {status && (
+                  <div className="mt-4 text-sm text-gray-300">{status}</div>
+                )}
                 {githubConnected && githubUsername && (
                   <div className="mt-2 text-xs text-gray-400">
                     GitHub: <span className="font-mono">{githubUsername}</span>
@@ -658,4 +725,3 @@ setSignature(sigBase64)
     </div>
   );
 }
-
