@@ -3,7 +3,7 @@ import QRCode from "react-qr-code";
 import axios from "axios";
 
 const fetchBackendData = async (githubUsername) => {
-  const { data } = await axios.post(
+  const { data } = await axios.get(
     `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
     { githubUsername }
   );
