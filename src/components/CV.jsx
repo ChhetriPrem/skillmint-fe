@@ -39,7 +39,7 @@ export default function SkillMintCV() {
   useEffect(() => {
     const githubUsername = localStorage.getItem("github_username");
     if (!githubUsername) return;
-console.log(githubUsername)
+
   useEffect(() => {
   fetchBackendData("renao").then((data) => setBackendData(data));
 }, []);
@@ -129,7 +129,7 @@ console.log(githubUsername)
   const avatarSrc =
     profile.avatar ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      profile.name || backendData.githubUsername || "User"
+      profile.name || backendData?.githubUsername || "User"
     )}&background=0D8ABC&color=fff&size=150`;
 
   return (
