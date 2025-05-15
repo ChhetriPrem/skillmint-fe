@@ -368,7 +368,6 @@ export default function CVApp() {
               {/* Badges/Skills Section */}
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-purple-400 border-b border-purple-500/30 pb-2">
-                  
                   Skills & Badges
                 </h3>
                 
