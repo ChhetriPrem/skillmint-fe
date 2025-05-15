@@ -8,7 +8,7 @@ import { NETWORK } from "./utils/constants";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { Toaster } from 'react-hot-toast';
 
-// Import your actual page components
+// components
 import AuthPage from "./components/AuthPage/Auth";
 import SkillMintCV from "./components/CV";
 import PublicCV from "./components/CVPublic";
