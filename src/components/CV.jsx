@@ -2,18 +2,15 @@ import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import axios from "axios";
 
-// Simulated backend data
-const backendData = {
-  githubUsername: "renao",
-  githubUrl: "https://github.com/renao",
-  wallet: "7T3x...abcd",
-  badges: [
-    { name: "Solana Contributor", icon: "🟣" },
-    { name: "Open Source Reviewer", icon: "🌟" },
-    { name: "Hackathon Winner", icon: "🏆" },
-    { name: "Rust Wizard", icon: "🦀" },
-  ],
+const fetchBackendData = async (githubUsername) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
+    { githubUsername }
+  );
+  return data;
 };
+
+
 
 const emptyProfile = {
   name: "",
@@ -31,6 +28,7 @@ const emptyProfile = {
 };
 
 export default function SkillMintCV() {
+  const [backendData, setBackendData] = useState(null);
   const [isEditing, setIsEditing] = useState(true);
   const [profile, setProfile] = useState(emptyProfile);
   const [loading, setLoading] = useState(true);
@@ -39,6 +37,9 @@ export default function SkillMintCV() {
   const [qrVisible, setQrVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  useEffect(() => {
+  fetchBackendData("renao").then((data) => setBackendData(data));
+}, []);
   // Load from localStorage
   useEffect(() => {
     const hasExistingData = localStorage.getItem("cv-data");
