@@ -28,7 +28,14 @@ const emptyProfile = {
 };
 
 export default function SkillMintCV() {
-  const [backendData, setBackendData] = useState(null);
+  const defaultBackendData = {
+  githubUsername: "",
+  githubUrl: "",
+  wallet: "",
+  badges: [],
+};
+const [backendData, setBackendData] = useState(defaultBackendData);
+
   const [isEditing, setIsEditing] = useState(true);
   const [profile, setProfile] = useState(emptyProfile);
   const [loading, setLoading] = useState(true);
@@ -40,7 +47,9 @@ export default function SkillMintCV() {
 useEffect(() => {
   const githubUsername = localStorage.getItem("github_username");
   if (!githubUsername) return;
-  fetchBackendData(githubUsername).then((data) => setBackendData(data));
+  fetchBackendData(githubUsername)
+    .then((data) => setBackendData(data || defaultBackendData))
+    .catch(() => setBackendData(defaultBackendData));
 }, []);
 
   // Load from localStorage
