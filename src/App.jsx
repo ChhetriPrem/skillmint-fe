@@ -10,7 +10,8 @@ import { Toaster } from 'react-hot-toast';
 
 // Import your pages/components
 import AuthPage from "./components/AuthPage/Auth";      
-import SkillMintCV from "./components/CV";               
+import SkillMintCV from "./components/CV";           
+import PublicCV from "./components/PublicCV";    
 import DashboardLayout from "./components/Dashboard";
 import IssuerInitializer from "./components/IssuerInitializer";
 import BadgeTemplateCreator from "./components/BadgeTemplateCreator";
@@ -72,6 +73,7 @@ export default function App() {
           
               <Route path="/auth" element={<AuthPage />} /> 
 <Route path="/oauth-callback" element={<OAuthCallback />} />
+<Route path="/publiccv" element={<PublicCV />} />
 
               <Route path="/cv/:username" element={<SkillMintCV />} /> {/* public CV */}
               <Route
