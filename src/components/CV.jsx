@@ -30,7 +30,7 @@ const emptyProfile = {
   ],
 };
 
-export default function CVApp() {
+export default function SkillMintCV() {
   const [isEditing, setIsEditing] = useState(true);
   const [profile, setProfile] = useState(emptyProfile);
   const [loading, setLoading] = useState(true);
