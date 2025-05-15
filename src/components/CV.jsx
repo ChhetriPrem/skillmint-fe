@@ -167,7 +167,17 @@ useEffect(() => {
           )}
         </div>
       </header>
-
+ {blinkUrl && qrVisible && (
+          <div className="mt-8 flex flex-col items-center">
+            <div className="mb-2 text-yellow-400 font-semibold">
+              Scan to View CV (Solana Blink)
+            </div>
+            <QRCode value={blinkUrl} size={180} />
+            <div className="mt-2 text-xs text-blue-200 break-all">
+              {blinkUrl}
+            </div>
+          </div>
+        )}
       <main className="container mx-auto p-6">
         {isEditing ? (
           <form className="space-y-8">
@@ -513,17 +523,7 @@ useEffect(() => {
         )}
 
         {/* QR Code */}
-        {blinkUrl && qrVisible && (
-          <div className="mt-8 flex flex-col items-center">
-            <div className="mb-2 text-yellow-400 font-semibold">
-              Scan to View CV (Solana Blink)
-            </div>
-            <QRCode value={blinkUrl} size={180} />
-            <div className="mt-2 text-xs text-blue-200 break-all">
-              {blinkUrl}
-            </div>
-          </div>
-        )}
+       
       </main>
     </div>
   );
