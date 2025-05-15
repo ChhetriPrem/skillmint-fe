@@ -39,7 +39,7 @@ export default function SkillMintCV() {
   useEffect(() => {
     const githubUsername = localStorage.getItem("github_username");
     if (!githubUsername) return;
-
+console.log(githubUsername)
   useEffect(() => {
   fetchBackendData("renao").then((data) => setBackendData(data));
 }, []);
