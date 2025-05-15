@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, Outlet, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
@@ -8,29 +8,26 @@ import { NETWORK } from "./utils/constants";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { Toaster } from 'react-hot-toast';
 
-// Import your pages/components
-import AuthPage from "./components/AuthPage/Auth";      
-import SkillMintCV from "./components/CV";           
-import PublicCV from "./components/CVPublic";    
+// Import your actual page components
+import AuthPage from "./components/AuthPage/Auth";
+import SkillMintCV from "./components/CV";
+import PublicCV from "./components/CVPublic";
 import DashboardLayout from "./components/Dashboard";
 import IssuerInitializer from "./components/IssuerInitializer";
 import BadgeTemplateCreator from "./components/BadgeTemplateCreator";
 import BadgeMinter from "./components/BadgeMinter";
 import BadgeList from "./components/BadgesList";
 import BadgeAccepter from "./components/AcceptBadge";
-import OAuthCallback from "./components/AuthPage/Auth";    
+import OAuthCallback from "./components/AuthPage/Auth";
 
-// Helper hook for onboarding
-const useOnboarded = () => !!localStorage.getItem("onboarded");
-
-// Protect dashboard routes
-function RequireOnboarded({ children }) {
-  const onboarded = useOnboarded();
+// ProtectedRoute component (recommended pattern[2][5][7])
+function ProtectedRoute() {
   const location = useLocation();
-  if (!onboarded) {
+  const isOnboarded = localStorage.getItem("onboarded") === "1";
+  if (!isOnboarded) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
-  return children;
+  return <Outlet />;
 }
 
 export default function App() {
@@ -70,41 +67,36 @@ export default function App() {
           />
           <Router>
             <Routes>
-          
-              <Route path="/auth" element={<AuthPage />} /> 
-<Route path="/oauth-callback" element={<OAuthCallback />} />
-<Route path="/publiccv" element={<PublicCV />} />
+              {/* Public Routes */}
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/oauth-callback" element={<OAuthCallback />} />
+              <Route path="/publiccv" element={<PublicCV />} />
+              <Route path="/cv/:username" element={<SkillMintCV />} />
 
-              <Route path="/cv/:username" element={<SkillMintCV />} /> {/* public CV */}
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireOnboarded>
-                    <DashboardLayout />
-                  </RequireOnboarded>
-                }
-              >
+              {/* Protected Dashboard Routes */}
+              <Route path="/dashboard" element={<ProtectedRoute />}>
                 <Route
                   index
                   element={
-                    <div className="max-w-2xl mx-auto mt-12 text-center">
-
-
- 
-
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <Link to="issuer" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Initialize Issuer</Link>
-                        <Link to="template" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Create Template</Link>
-                        <Link to="mint" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Mint Badge</Link>
+                    <DashboardLayout>
+                      <div className="max-w-2xl mx-auto mt-12 text-center">
+                        <div className="grid md:grid-cols-3 gap-6">
+                          <Link to="issuer" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Initialize Issuer</Link>
+                          <Link to="template" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Create Template</Link>
+                          <Link to="mint" className="bg-purple-700/80 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transition text-lg">Mint Badge</Link>
+                        </div>
                       </div>
-                    </div>
+                    </DashboardLayout>
                   }
                 />
                 <Route path="issuer" element={<IssuerInitializer connection={connection} />} />
-
-
+                <Route path="template" element={<BadgeTemplateCreator />} />
+                <Route path="mint" element={<BadgeMinter />} />
+                <Route path="badges" element={<BadgeList />} />
                 <Route path="accept" element={<BadgeAccepter />} />
               </Route>
+
+              {/* Catch-all */}
               <Route path="*" element={<Navigate to="/auth" replace />} />
             </Routes>
           </Router>
