@@ -71,9 +71,7 @@ export default function SkillMintCV() {
 
       // Construct the Blink URL 
       const cid = data.cid.split("/ipfs/").pop(); // Use data.cid here
-      const blink = `https://blink.solana.com/?action=${encodeURIComponent(
-        `${import.meta.env.VITE_BACKEND_URL}/api/blink-cv?cid=${cid}`
-      )}`;
+    const blink = `${import.meta.env.VITE_BACKEND_URL}/api/users/publiccv?cid=${cid}`
 
       setBlinkUrl(blink);
       setQrVisible(true);
