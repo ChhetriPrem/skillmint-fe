@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import axios from "axios";
 
-// Simulated backend data (replace with real API call in production)
+// Simulated backend data
 const backendData = {
   githubUsername: "renao",
   githubUrl: "https://github.com/renao",
@@ -56,7 +56,7 @@ export default function SkillMintCV() {
     setIsEditing(false);
 
     try {
-      // Upload to your backend, which uploads to Pinata
+    
       const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadcv`,
         {
@@ -69,7 +69,7 @@ export default function SkillMintCV() {
       );
       setIpfsCid(data.cid);
 
-      // Construct the Blink URL for this CV
+      // Construct the Blink URL 
       const cid = data.cid.split("/ipfs/").pop(); // Use data.cid here
       const blink = `https://blink.solana.com/?action=${encodeURIComponent(
         `${import.meta.env.VITE_BACKEND_URL}/api/blink-cv?cid=${cid}`
