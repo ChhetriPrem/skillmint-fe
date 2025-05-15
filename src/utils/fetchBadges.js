@@ -46,6 +46,6 @@ export async function fetchBadgesForWallet2(connection, walletPublicKey) {
   if (!response.ok) throw new Error("Failed to fetch badges from backend");
   
   const data = await response.json();
-  
+  console.log(data.badges);
   return data.badges || [];
 }
