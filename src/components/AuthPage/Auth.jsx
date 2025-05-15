@@ -75,12 +75,12 @@ function ExtensionInfoModal({ isOpen, onClose }) {
           Please download the extension pack from Google Drive and install it manually:
         </p>
         <a
-          href="https://drive.google.com/YOUR_DRIVE_LINK_HERE"
+          href="https://github.com/ChhetriPrem/skillmint-extension.git"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg transition"
         >
-          📥 Download from Google Drive
+          Clone from repo
         </a>
         <p className="text-xs text-gray-500 mt-4">
           Go to <b>chrome://extensions</b>, enable <b>Developer Mode</b>, click <b>“Load unpacked”</b>, and select the extracted folder.
@@ -480,7 +480,7 @@ setSignature(sigBase64)
               <b>Seamlessly link your wallet, sign messages, and manage badges directly from your browser.</b>
             </p>
             <a
-              href="https://drive.google.com/drive/folders/1iAnrx6AB4PJy3fH6N6xGjSpDHTsxzPI9"
+              href="https://github.com/ChhetriPrem/skillmint-extension.git"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-block py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg hover:brightness-110 transition"
