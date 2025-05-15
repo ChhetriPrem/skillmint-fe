@@ -159,11 +159,11 @@ useEffect(() => {
 // Step 3b: After signing, send to extension (once)
 useEffect(() => {
   const walletAddress = solWallet.publicKey?.toBase58();
-  if (walletAddress && signature && !sent) {
-    sendToExtensionAPI(signature, walletAddress);
+  if (walletAddress && githubUsername && !sent) {
+    sendToExtensionAPI(githubUsername, walletAddress);
     setSent(true);
   }
-}, [solWallet.publicKey, signature, sent]);
+}, [solWallet.publicKey, githubUsername, sent]);
 
 // Step 4: After onboarding, redirect to dashboard
 useEffect(() => {
@@ -172,11 +172,11 @@ useEffect(() => {
   }
 }, [step, navigate]);
 
-function sendToExtensionAPI(signature, walletAddress) {
+function sendToExtensionAPI(githubUsername, walletAddress) {
   window.postMessage(
     {
       action: "linkGitHubWallet",
-      signature,
+      githubUsername,
       walletAddress,
     },
     "*"
@@ -184,6 +184,7 @@ function sendToExtensionAPI(signature, walletAddress) {
   setStatus("Sent to extension!");
   setSent(true);
 }
+
   async function handleConnectAndSign() {
      setStatus("Connecting wallet...");
     setLoading(true);
