@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { getGithubAuthUrl } from "../../utils/githubOAuth";
 import { useUserStore } from "../../store/useUserStore";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -30,20 +29,19 @@ const testimonials = [
   },
 ];
 
-
-const howItWorks = [
+const features = [
   {
     title: "Connect GitHub & Wallet",
-    desc: "Securely link your GitHub and Solana wallet in seconds. Your credentials stay yours.",
+    desc: "Securely link your GitHub and Solana wallet in seconds.",
     icon: "🔗",
   },
   {
     title: "Earn On-Chain Badges",
-    desc: "Get NFT badges for real achievements-building dApps, contributing to open source, or mastering Solana tools.",
+    desc: "Get NFT badges for real achievements—building dApps, contributing to open source, or mastering Solana tools.",
     icon: "🎖️",
   },
   {
-    title: "Accept & Showcase",
+    title: "Showcase Your Skills",
     desc: "You control which badges appear on your profile. Endorsements from trusted orgs make your skills stand out.",
     icon: "🌟",
   },
@@ -54,159 +52,111 @@ const howItWorks = [
   },
 ];
 
-
-function ExtensionInfoModal({ isOpen, onClose }) {
+const ExtensionModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-      <div className="bg-white text-gray-800 rounded-xl shadow-xl max-w-md w-full p-6 relative">
+      <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-lg"
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
         >
-          ×
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
-        <h2 className="text-xl font-bold mb-2 text-red-600">Extension Not on Web Store</h2>
-        <p className="mb-3 text-sm">
-          Due to lack of funds, we couldn’t publish the extension on the Chrome Web Store because of the $5 registration fee.
-        </p>
-        <p className="mb-4 text-sm">
-          Please download the extension pack from Google Drive and install it manually:
+        <h2 className="text-xl font-semibold mb-4 text-indigo-700">Install the SkillMint Extension</h2>
+        <p className="mb-4 text-gray-700">
+          Our extension isn't yet published on the Chrome Web Store. Please download and install it manually:
         </p>
         <a
           href="https://drive.google.com/YOUR_DRIVE_LINK_HERE"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg transition"
+          className="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-3 rounded-lg transition"
         >
-          📥 Download from Google Drive
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download Extension
         </a>
-        <p className="text-xs text-gray-500 mt-4">
-          Go to <b>chrome://extensions</b>, enable <b>Developer Mode</b>, click <b>“Load unpacked”</b>, and select the extracted folder.
-        </p>
+        <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
+          <p className="text-sm text-gray-700">
+            <span className="font-medium">Installation steps:</span>
+            <ol className="mt-2 ml-4 space-y-1 list-decimal">
+              <li>Go to <code className="bg-indigo-100 px-1 py-0.5 rounded">chrome://extensions</code></li>
+              <li>Enable "Developer Mode" in the top-right</li>
+              <li>Click "Load unpacked" and select the extracted folder</li>
+            </ol>
+          </p>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default function SkillMintLanding() {
   const [showExtensionModal, setShowExtensionModal] = useState(false);
-const [step, setStep] = useState("wallet");
- const [showWalletModal, setShowWalletModal] = useState(false);
-  const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [connecting, setConnecting] = useState(false);
+  const [connectStatus, setConnectStatus] = useState("");
   const [githubConnected, setGithubConnected] = useState(!!localStorage.getItem("github_access_token"));
   const [githubUsername, setGithubUsername] = useState(localStorage.getItem("github_username") || "");
-  const setWallet = useUserStore((s) => s.setWallet);
   
+  const setWallet = useUserStore((s) => s.setWallet);
   const solWallet = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
-const [sent, setSent] = useState(false);
-  const [signature, setSignature] = useState("");
 
+  // Handle GitHub OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    
+    if (code && !githubConnected) {
+      setConnecting(true);
+      setConnectStatus("Connecting to GitHub...");
+      
+      axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, { code })
+        .then((res) => {
+          localStorage.setItem("github_access_token", res.data.accessToken);
+          localStorage.setItem("github_username", res.data.username);
+          setGithubConnected(true);
+          setGithubUsername(res.data.username);
+          toast.success("GitHub connected successfully!");
+          window.history.replaceState({}, document.title, location.pathname);
+          
+          // If wallet is already connected, proceed to link them
+          if (solWallet.connected) {
+            linkWalletToGitHub();
+          }
+        })
+        .catch(() => {
+          toast.error("GitHub connection failed. Please try again.");
+        })
+        .finally(() => setConnecting(false));
+    }
+  }, [location, githubConnected]);
 
-// Step 1: When wallet connects, move to GitHub step
-useEffect(() => {
-  if (showWalletModal && solWallet.connected && step === "wallet") {
-    setStep("github");
-  }
-}, [showWalletModal, solWallet.connected, step]);
+  // Link GitHub and wallet
+  const linkWalletToGitHub = async () => {
+    if (!githubConnected || !solWallet.connected) {
+      return;
+    }
 
-// Step 2: Handle GitHub OAuth callback
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const code = params.get("code");
-  if (code && !githubConnected) {
-    setLoading(true);
-    setStatus("Connecting to GitHub...");
-    axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/api/github/exchange`, { code })
-      .then((res) => {
-        localStorage.setItem("github_access_token", res.data.accessToken);
-        localStorage.setItem("github_username", res.data.username);
-        setGithubConnected(true);
-        setGithubUsername(res.data.username);
-        setStatus("GitHub connected! Now linking...");
-        toast.success("GitHub connected!");
-        window.history.replaceState({}, document.title, location.pathname);
-        setStep("linking");
-      })
-      .catch(() => {
-        setStatus("GitHub connection failed.");
-        toast.error("GitHub connection failed.");
-      })
-      .finally(() => setLoading(false));
-  }
-}, [location, githubConnected, toast]);
+    setConnecting(true);
+    setConnectStatus("Linking GitHub and wallet...");
 
-// Step 3: When both connected, link wallet & GitHub (sign message)
-useEffect(() => {
-  if (
-    showWalletModal &&
-    solWallet.connected &&
-    githubConnected &&
-    step === "linking" &&
-    !signature // prevent duplicate signing
-  ) {
-    handleConnectAndSign();
-  }
-  // eslint-disable-next-line
-}, [showWalletModal, solWallet.connected, githubConnected, step, signature]);
-
-// Step 3b: After signing, send to extension (once)
-useEffect(() => {
-  const walletAddress = solWallet.publicKey?.toBase58();
-  if (walletAddress && githubUsername && !sent) {
-    sendToExtensionAPI(githubUsername, walletAddress);
-    setSent(true);
-  }
-}, [solWallet.publicKey, githubUsername, sent]);
-
-// Step 4: After onboarding, redirect to dashboard
-useEffect(() => {
-  if (step === "done") {
-    setTimeout(() => navigate("/dashboard"), 1200);
-  }
-}, [step, navigate]);
-
-function sendToExtensionAPI(githubUsername, walletAddress) {
-  window.postMessage(
-    {
-      action: "linkGitHubWallet",
-      githubUsername,
-      walletAddress,
-    },
-    "*"
-  );
-  setStatus("Sent to extension!");
-  setSent(true);
-}
-
-  async function handleConnectAndSign() {
-     setStatus("Connecting wallet...");
-    setLoading(true);
     try {
-      if (!githubConnected || !githubUsername) {
-        toast.error("Please connect your GitHub first!");
-        setStatus("Please connect your GitHub first!");
-        setLoading(false);
-        return;
-      }
-      if (!solWallet.connected) {
-        toast.error("Please connect your wallet first!");
-        setStatus("Please connect your wallet first!");
-        setLoading(false);
-        return;
-      }
       const publicKey = solWallet.publicKey?.toBase58();
       if (!publicKey) throw new Error("No wallet address");
       setWallet({ publicKey });
 
       // Get challenge from backend
-      setStatus("Getting challenge...");
       const { data: challengeData } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/github/challenge`,
         { github_username: githubUsername }
@@ -214,14 +164,12 @@ function sendToExtensionAPI(githubUsername, walletAddress) {
       const challenge = challengeData.challenge;
 
       // Sign challenge
-      setStatus("Signing challenge...");
       if (!solWallet.signMessage) throw new Error("Wallet does not support signMessage");
       const encoded = new TextEncoder().encode(challenge);
       const sig = await solWallet.signMessage(encoded);
       const sigBase64 = btoa(String.fromCharCode(...sig));
-setSignature(sigBase64)
+
       // Send signature to backend to link GitHub <-> wallet
-      setStatus("Linking wallet to GitHub...");
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/github/link`,
         {
@@ -233,430 +181,382 @@ setSignature(sigBase64)
       );
 
       setWallet({ publicKey, signature: sigBase64, githubUsername });
-      setStatus("Wallet connected and GitHub linked!");
-      toast.success("Wallet linked to GitHub! Redirecting to dashboard...");
+      toast.success("Successfully linked GitHub and wallet!");
+
+      // Send to extension API if needed
+      window.postMessage(
+        {
+          action: "linkGitHubWallet",
+          githubUsername,
+          walletAddress: publicKey,
+        },
+        "*"
+      );
 
       localStorage.setItem("onboarded", "1");
-      setStep("done");
-    } catch (e) {
-      setStatus("❌ " + (e.response?.data?.error || e.message || "Wallet/signing error"));
-      toast.error(e.response?.data?.error || e.message || "Wallet/signing error");
-      setStep("github");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error(error.response?.data?.error || error.message || "Connection error");
     } finally {
-      setLoading(false);
+      setConnecting(false);
     }
-  }
+  };
 
-  // Carousel logic (unchanged)
-  const nextTestimonial = () => setTestimonialIdx((i) => (i + 1) % testimonials.length);
-  const prevTestimonial = () => setTestimonialIdx((i) => (i === 0 ? testimonials.length - 1 : i - 1));
-
-
+  // Initialize onboarding flow
+  const startOnboarding = () => {
+    if (!githubConnected) {
+      window.location.href = getGithubAuthUrl();
+    } else if (!solWallet.connected) {
+      // Let wallet adapter handle this
+    } else {
+      linkWalletToGitHub();
+    }
+  };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-tr from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-white">
       <Toaster
-        position="top-center"
+        position="top-right"
         toastOptions={{
+          duration: 4000,
           style: {
-            background: "#181f2a",
-            color: "#fff",
-            border: "1px solid #8b5cf6",
-            boxShadow: "0 4px 24px 0 rgba(139,92,246,0.25)",
-            fontWeight: 600,
-            fontFamily: "inherit",
-            fontSize: "1.1rem",
-          },
-          duration: 3500,
-          success: {
-            iconTheme: {
-              primary: "#a78bfa",
-              secondary: "#181f2a",
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: "#f43f5e",
-              secondary: "#181f2a",
-            },
+            borderRadius: '8px',
+            background: '#333',
+            color: '#fff',
           },
         }}
       />
-  <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-        style={{ display: showWalletModal ? "flex" : "none" }}
-      >
-        <div className="bg-[#181f2a] rounded-2xl p-8 shadow-2xl min-w-[340px] max-w-full relative">
-          <button
-            className="absolute top-4 right-6 text-xl text-gray-400 hover:text-pink-400"
-            onClick={() => setShowWalletModal(false)}
-          >
-            ×
-          </button>
-          <h2 className="text-2xl font-bold mb-6 text-purple-300 text-center">Onboard to SkillMint</h2>
-
-         {step === "wallet" && (
-  <>
-    <WalletMultiButton />
-    <div className="mt-4 text-gray-300 text-center">Connect your Solana wallet to continue.</div>
-  </>
-)}
-
-{step === "github" && solWallet.connected && (
-  <>
-    <button
-      className="w-full py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition mb-2"
-      onClick={() => { window.location.href = getGithubAuthUrl(); }}
-      disabled={loading}
-    >
-      {loading ? "Connecting..." : "Connect GitHub"}
-    </button>
-    <div className="mt-2 text-gray-300 text-center">Connect your GitHub account.</div>
-  </>
-)}
-
-
-          {step === "linking" && (
-            <>
-              <div className="text-center text-lg text-purple-300 mb-2">Linking your wallet & GitHub...</div>
-              <div className="text-center text-gray-400">{status || "Signing and linking..."}</div>
-            </>
-          )}
-
-          {step === "done" && (
-            <div className="text-center text-green-400 font-bold text-lg">Onboarding complete! Redirecting...</div>
-          )}
-
-          {status && step !== "done" && (
-            <div className="mt-4 text-center text-pink-300">{status}</div>
-          )}
-        </div>
-      </motion.div>
-      {/* Animated background orbs */}
-      <motion.div
-        className="absolute top-[-120px] left-[-120px] w-[350px] h-[350px] rounded-full bg-purple-600 opacity-30 blur-3xl animate-blob"
-        style={{ filter: "drop-shadow(0 0 30px #8b5cf6)" }}
-        animate={{ x: [0, 60, 0], y: [0, 40, 0] }}
-        transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
-      />
-      <motion.div
-        className="absolute bottom-[-140px] right-[-140px] w-[400px] h-[400px] rounded-full bg-pink-500 opacity-25 blur-3xl animate-blob animation-delay-2000"
-        style={{ filter: "drop-shadow(0 0 35px #ec4899)" }}
-        animate={{ x: [0, -50, 0], y: [0, -30, 0] }}
-        transition={{ duration: 9, repeat: Infinity, repeatType: "reverse" }}
-      />
-
-      {/* HERO */}
-      <section className="relative z-10 flex flex-col items-center justify-center py-24 px-4 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-          className="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg mb-6"
-        >
-          SkillMint
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="max-w-2xl mx-auto text-lg md:text-2xl text-gray-200 mb-10"
-        >
-          On-chain, verifiable skill badges for Solana developers.<br />
-          <span className="text-pink-400 font-semibold">
-            Showcase your real skills. Get recognized. Own your reputation.
-          </span>
-        </motion.p>
-
-        <div className="bg-blue-50 border border-blue-300 text-blue-800 rounded-lg px-5 py-4 mb-6 shadow-sm text-center max-w-2xl mx-auto">
-  <p className="text-sm sm:text-base font-medium">
-    🔐 <span className="font-semibold">Please add the SkillMint Extension before logging in.</span>
-    <br />
-    <span
-      onClick={() => setShowExtensionModal(true)}
-      className="inline-block mt-2 text-blue-600  cursor-pointer hover:text-blue-800 transition"
-    >
-      Why isn’t the extension on the Chrome Web Store? - Click here
       
-    </span>
-  </p>
-</div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.7 }}
-          className="flex flex-col md:flex-row gap-4 justify-center items-center"
-        >
-  
-
-<ExtensionInfoModal
-  isOpen={showExtensionModal}
-  onClose={() => setShowExtensionModal(false)}
-/>
-
-<button
-  onClick={() => setShowWalletModal(true)}
-  className="py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition duration-300"
->
-  Connect GitHub & Wallet
-</button>
-
-          <a
-            href="#demo"
-            className="py-4 px-8 rounded-xl font-bold text-lg bg-[#111827]/80 border border-purple-600 text-purple-300 hover:bg-purple-900/40 transition"
-          >
-            Watch Demo
-          </a>
-        </motion.div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="relative z-10 py-16 px-4 max-w-5xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-10 text-center">
-          How SkillMint Works
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {howItWorks.map((step, i) => (
-            <motion.div
-              key={step.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15, duration: 0.7 }}
-              viewport={{ once: true }}
-              className="bg-[#181f2a]/80 rounded-2xl p-6 shadow-xl flex flex-col items-center"
-            >
-              <div className="text-4xl mb-4">{step.icon}</div>
-              <h3 className="font-bold text-xl mb-2 text-purple-300">{step.title}</h3>
-              <p className="text-gray-300">{step.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* SCREENSHOTS & DEMO */}
-      <section id="demo" className="relative z-10 py-16 px-4 max-w-5xl mx-auto">
-        <h2 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-yellow-400 mb-8 text-center">
-          See SkillMint In Action
-        </h2>
-        <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
-          <img
-            src="https://i.ibb.co/BVwwrwQV/Screenshot-2025-05-14-193004.png"
-            alt="SkillMint Wallet Linking"
-            className="rounded-2xl shadow-2xl w-full md:w-1/2"
-          />
-          <div className="flex-1 text-lg text-gray-200">
-            <ul className="space-y-4">
-              <li>🔗 One-click wallet & GitHub linking</li>
-              <li>🎖️ Mint NFT badges for real achievements</li>
-              <li>🌟 Accept, endorse, and showcase your skills</li>
-              <li>🔍 Trustless, public verification for recruiters</li>
-            </ul>
-            <button
-              onClick={() => setShowWalletModal(true)}
-              className="mt-8 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition"
-            >
-              Try Wallet Linking
-            </button>
+      {/* Extension Modal */}
+      <ExtensionModal isOpen={showExtensionModal} onClose={() => setShowExtensionModal(false)} />
+      
+      {/* Header */}
+      <header className="bg-white py-6 px-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center">
+            <span className="text-2xl font-bold text-indigo-600">SkillMint</span>
+          </div>
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="#features" className="text-gray-600 hover:text-indigo-600 transition">Features</a>
+            <a href="#how-it-works" className="text-gray-600 hover:text-indigo-600 transition">How It Works</a>
+            <a href="#testimonials" className="text-gray-600 hover:text-indigo-600 transition">Testimonials</a>
+            <a href="#faq" className="text-gray-600 hover:text-indigo-600 transition">FAQ</a>
+          </nav>
+          <div>
+            {solWallet.connected ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-600">Connected</span>
+                <div className="h-2 w-2 rounded-full bg-green-500"></div>
+              </div>
+            ) : (
+              <WalletMultiButton className="text-indigo-600 border border-indigo-600 rounded-lg px-4 py-2 hover:bg-indigo-50 transition" />
+            )}
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* EXTENSION */}
-      <section className="relative z-10 py-16 px-4 max-w-5xl mx-auto">
-        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-6 text-center">
-          Chrome Extension Integration
-        </h2>
-        <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
-          <img
-            src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*6Cq5sNQKUvT1oKIslU9WvQ.png" 
-            alt="SkillMint Extension"
-            className="rounded-xl shadow-xl w-full md:w-1/3"
-          />
-          <div className="flex-1 text-lg text-gray-200">
-            <p>
-              <b>Seamlessly link your wallet, sign messages, and manage badges directly from your browser.</b>
+      {/* Hero */}
+      <section className="bg-gradient-to-r from-indigo-50 to-indigo-100 py-20 px-4">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 mb-10 md:mb-0">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Own Your Developer Skills with On-Chain Credentials
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              SkillMint transforms your achievements into verifiable badges on Solana. Showcase your real skills and get recognized by top projects and DAOs.
             </p>
-            <a
-              href="https://drive.google.com/drive/folders/1iAnrx6AB4PJy3fH6N6xGjSpDHTsxzPI9"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-block py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg hover:brightness-110 transition"
-            >
-              Add Extension
-            </a>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={startOnboarding}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg transition flex items-center justify-center"
+                disabled={connecting}
+              >
+                {connecting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {connectStatus || "Connecting..."}
+                  </>
+                ) : (
+                  <>
+                    {!githubConnected ? "Connect GitHub" : !solWallet.connected ? "Connect Wallet" : "Link Accounts"}
+                  </>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => setShowExtensionModal(true)}
+                className="border border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-medium px-6 py-3 rounded-lg transition"
+              >
+                Install Extension
+              </button>
+            </div>
+            
+            {/* Status information */}
+            {githubConnected && (
+              <div className="mt-4 flex items-center">
+                <div className="flex items-center bg-green-50 text-green-700 text-sm px-3 py-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  GitHub Connected: {githubUsername}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="md:w-1/2 md:pl-10">
+            <div className="relative">
+              <img
+                src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*6Cq5sNQKUvT1oKIslU9WvQ.png"
+                alt="SkillMint Dashboard"
+                className="rounded-lg shadow-xl"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="relative z-10 py-16 px-4 max-w-4xl mx-auto">
-        <h2 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-yellow-400 mb-8 text-center">
-          What Developers & Recruiters Say
-        </h2>
-        <div className="flex flex-col items-center">
-          <motion.div
-            key={testimonialIdx}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="bg-[#181f2a]/90 rounded-2xl p-8 shadow-xl max-w-xl text-center"
-          >
-            <img
-              src={testimonials[testimonialIdx].img}
-              alt={testimonials[testimonialIdx].name}
-              className="w-16 h-16 rounded-full mx-auto mb-4 border-4 border-purple-500"
-            />
-            <p className="text-xl text-gray-100 mb-4">"{testimonials[testimonialIdx].text}"</p>
-            <div className="font-bold text-purple-300">{testimonials[testimonialIdx].name}</div>
-            <div className="text-sm text-pink-300">{testimonials[testimonialIdx].role}</div>
-          </motion.div>
-          <div className="flex gap-4 mt-6">
+      {/* Features */}
+      <section id="features" className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose SkillMint</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Showcase your real skills and get recognized by top projects and DAOs with verifiable on-chain badges.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div className="text-3xl mb-4">{feature.icon}</div>
+                <h3 className="font-semibold text-xl mb-2 text-gray-900">{feature.title}</h3>
+                <p className="text-gray-600">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how-it-works" className="bg-gray-50 py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">How SkillMint Works</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Simple steps to showcase your skills and get recognized in the Solana ecosystem.
+            </p>
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2">
+              <img
+                src="https://i.ibb.co/BVwwrwQV/Screenshot-2025-05-14-193004.png"
+                alt="SkillMint Dashboard"
+                className="rounded-lg shadow-lg"
+              />
+            </div>
+            
+            <div className="md:w-1/2 space-y-8">
+              <div className="flex items-start">
+                <div className="bg-indigo-100 rounded-full p-3 mr-4">
+                  <span className="text-indigo-600 font-semibold">1</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Connect Your Accounts</h3>
+                  <p className="text-gray-600">Link your GitHub and Solana wallet in seconds. Our secure flow keeps your credentials safe.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="bg-indigo-100 rounded-full p-3 mr-4">
+                  <span className="text-indigo-600 font-semibold">2</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Earn Badges</h3>
+                  <p className="text-gray-600">Get recognized for real achievements like contributing to open source, building dApps, or mastering Solana tools.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="bg-indigo-100 rounded-full p-3 mr-4">
+                  <span className="text-indigo-600 font-semibold">3</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Build Your Profile</h3>
+                  <p className="text-gray-600">Showcase your badges and create a trustless developer profile that stands out to recruiters and DAOs.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Developers & Teams Say</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Join the growing community of developers who showcase their skills on SkillMint.
+            </p>
+          </div>
+          
+          <div className="relative bg-white rounded-xl shadow-md p-8 max-w-3xl mx-auto">
+            <div className="mb-8">
+              <p className="text-xl text-gray-700 italic">"{testimonials[activeTestimonial].text}"</p>
+            </div>
+            
+            <div className="flex items-center">
+              <img
+                src={testimonials[activeTestimonial].img}
+                alt={testimonials[activeTestimonial].name}
+                className="w-12 h-12 rounded-full mr-4"
+              />
+              <div>
+                <h4 className="font-semibold text-gray-900">{testimonials[activeTestimonial].name}</h4>
+                <p className="text-sm text-gray-600">{testimonials[activeTestimonial].role}</p>
+              </div>
+            </div>
+            
+            <div className="absolute bottom-8 right-8 flex space-x-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveTestimonial(index)}
+                  className={`w-2 h-2 rounded-full ${
+                    index === activeTestimonial ? "bg-indigo-600" : "bg-gray-300"
+                  }`}
+                  aria-label={`View testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section className="bg-indigo-600 py-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-6">Ready to showcase your skills?</h2>
+          <p className="text-xl text-indigo-100 mb-8">
+            Join the growing community of developers who showcase their real achievements on SkillMint.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={prevTestimonial}
-              className="p-2 rounded-full bg-purple-700 hover:bg-purple-600 transition"
-              aria-label="Previous testimonial"
+              onClick={startOnboarding}
+              className="bg-white hover:bg-indigo-50 text-indigo-600 font-medium px-8 py-3 rounded-lg transition"
             >
-              ◀
+              {!githubConnected ? "Connect GitHub" : !solWallet.connected ? "Connect Wallet" : "Go to Dashboard"}
             </button>
             <button
-              onClick={nextTestimonial}
-              className="p-2 rounded-full bg-pink-700 hover:bg-pink-600 transition"
-              aria-label="Next testimonial"
+              onClick={() => setShowExtensionModal(true)}
+              className="border border-white text-white hover:bg-indigo-700 font-medium px-8 py-3 rounded-lg transition"
             >
-              ▶
+              Install Extension
             </button>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="relative z-10 py-16 px-4 max-w-3xl mx-auto">
-        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-8 text-center">
-          Frequently Asked Questions
-        </h2>
-        <div className="space-y-6">
-          <div>
-            <div className="font-bold text-pink-300">Is my data safe?</div>
-            <div className="text-gray-300">
-              All wallet signatures are local. No private keys ever leave your device. We use industry-standard security protocols.
-            </div>
+      <section id="faq" className="py-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Common questions about SkillMint and on-chain skill verification.
+            </p>
           </div>
-          <div>
-            <div className="font-bold text-pink-300">What if I lose my wallet?</div>
-            <div className="text-gray-300">
-              Badges are on-chain-recoverable with your wallet. Your credentials are always yours.
+          
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is my data safe?</h3>
+              <p className="text-gray-600">
+                All wallet signatures are processed locally. No private keys ever leave your device. We use industry-standard security protocols for all GitHub and wallet interactions.
+              </p>
             </div>
-          </div>
-          <div>
-            <div className="font-bold text-pink-300">Who can issue badges?</div>
-            <div className="text-gray-300">
-              Verified orgs and trusted reviewers. You decide which badges to accept.
+            
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What if I lose my wallet?</h3>
+              <p className="text-gray-600">
+                Badges are on-chain and recoverable with your wallet. When you regain access to your wallet, you automatically regain access to all your badges.
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Who can issue badges?</h3>
+              <p className="text-gray-600">
+                Verified organizations and trusted community reviewers. You have full control over which badges you accept and display on your profile.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative z-10 py-10 px-4 bg-[#111827]/80 border-t border-purple-800 mt-12">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <div className="text-xl font-bold text-purple-300">SkillMint</div>
-            <div className="text-gray-400 text-sm mt-2">
-              Own your skills. Own your future.
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+              <h3 className="text-2xl font-bold mb-4">SkillMint</h3>
+              <p className="text-gray-400 mb-6">
+                Own your skills. Own your future.
+              </p>
+              <div className="flex space-x-4">
+                <a href="#" className="text-gray-400 hover:text-white transition">
+                  <span className="sr-only">GitHub</span>
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                  </svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition">
+                  <span className="sr-only">Twitter</span>
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                  </svg>
+                </a>
+              <a href="#" className="text-gray-400 hover:text-white transition">
+  <span className="sr-only">Discord</span>
+  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.608 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1634-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" />
+  </svg>
+</a>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Resources</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Documentation</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">GitHub Repository</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">API Reference</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Extension Guide</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Contact</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Email Us</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Join Discord</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Follow on Twitter</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Submit Issue</a></li>
+              </ul>
             </div>
           </div>
-          <form
-            className="flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Thanks for subscribing!");
-            }}
-          >
-            <input
-              type="email"
-              required
-              placeholder="Your email"
-              className="rounded-lg px-4 py-2 bg-[#181f2a] text-white border border-purple-700 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 font-bold"
-            >
-              Subscribe
-            </button>
-          </form>
-          <div className="flex gap-4 text-2xl">
-            <a href="https://github.com/skillmint" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400">🐙</a>
-            <a href="https://twitter.com/skillmint" target="_blank" rel="noopener noreferrer" className="hover:text-pink-400">🐦</a>
-            <a href="https://discord.gg/skillmint" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400">💬</a>
+          
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
+            <p>&copy; {new Date().getFullYear()} SkillMint. All rights reserved.</p>
+            <p className="mt-2">Built with 💜 for the Solana community</p>
           </div>
         </div>
       </footer>
-
-      {/* WALLET LINK MODAL */}
-      <AnimatePresence>
-        {showWalletModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#181f2a] rounded-2xl p-8 max-w-lg w-full shadow-2xl relative"
-            >
-              <button
-                onClick={() => setShowWalletModal(false)}
-                className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-pink-400"
-              >
-                ×
-              </button>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold mb-4 text-purple-300">Link Your GitHub & Wallet</h3>
-                {/* 1. GitHub Connect */}
-                {!githubConnected ? (
-                  <button
-                    onClick={() => window.location.href = getGithubAuthUrl()}
-                    className="mt-6 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 shadow-lg hover:brightness-110 transition"
-                    disabled={loading}
-                  >
-                    {loading ? "Connecting..." : "Connect GitHub"}
-                  </button>
-                ) : !solWallet.connected ? (
-                  // 2. Wallet Connect
-                  <>
-                    <WalletMultiButton />
-                    <div className="mt-4 text-pink-400 font-semibold">Please connect your wallet.</div>
-                  </>
-                ) : (
-                  // 3. Sign Message
-                  <button
-                    className="mt-6 py-3 px-8 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg hover:brightness-110 transition"
-                    onClick={handleConnectAndSign}
-                    disabled={loading}
-                  >
-                    {loading ? "Processing..." : "Sign Message to Link"}
-                  </button>
-                )}
-                {status && <div className="mt-4 text-sm text-gray-300">{status}</div>}
-                {githubConnected && githubUsername && (
-                  <div className="mt-2 text-xs text-gray-400">
-                    GitHub: <span className="font-mono">{githubUsername}</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
-
