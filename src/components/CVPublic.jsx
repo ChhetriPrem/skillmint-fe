@@ -11,18 +11,15 @@ import {
 } from "lucide-react";
 
 // Simulated backend data (replace with real API call in production)
-const backendData = {
-  githubUsername: "renao",
-  githubUrl: "https://github.com/renao",
-  wallet: "7T3x...abcd",
-  badges: [
-    { name: "Solana Contributor", icon: "🟣" },
-    { name: "Open Source Reviewer", icon: "🌟" },
-    { name: "Hackathon Winner", icon: "🏆" },
-    { name: "Rust Wizard", icon: "🦀" },
-  ],
-};
-
+import axios from "axios"
+  const backendData = async (githubUsername) => {
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
+      { githubUsername }
+    );
+    console.log("data: " , data);
+    return data;
+  };
 export default function PublicCV() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
