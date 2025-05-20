@@ -14,25 +14,26 @@ import { motion, AnimatePresence } from "framer-motion";
 const preUploadedImages = [
   {
     id: 1,
-    url: "https://i.ibb.co/ZR2JXC4Y/luxury-labels-gold-red-8-removebg-preview.png",
+    url: "/badge1.png",
     name: "Gold Medal",
   },
   {
-    id: 3,
-    url: "https://i.ibb.co/S7JqDzSw/luxury-labels-gold-red-6.jpg",
+    id: 2,
+    url: "/badge2.png",
     name: "Bronze Star",
   },
   {
-    id: 4,
-    url: "https://i.ibb.co/5XqSJWQ5/luxury-labels-gold-red-5.jpg",
+    id: 3,
+    url: "/badge3.png",
     name: "Diamond Award",
   },
   {
-    id: 5,
-    url: "https://i.ibb.co/nswPz9qf/luxury-labels-gold-red-4.jpg",
+    id: 4,
+    url: "/badge4.png",
     name: "Platinum Trophy",
   },
 ];
+
 
 export default function BadgeTemplateCreator({ connection }) {
   const wallet = useWallet();
