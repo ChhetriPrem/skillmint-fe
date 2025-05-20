@@ -18,9 +18,10 @@
       `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
       { githubUsername }
     );
+    console.log("data: " , data);
     return data;
   };
-console.log("data: " , data);
+
   const emptyProfile = {
     name: "",
     avatar: "",
