@@ -577,84 +577,82 @@ import QRCode from 'react-qr-code';
                   )}
                 </div>
 
-                {/* Badges (from backend) */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold text-purple-300 mb-4 flex items-center gap-2">
-                    <div className="w-6 h-6 bg-purple-500/30 rounded-md flex items-center justify-center">
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
-                        <path d="m9 12 2 2 4-4" />
-                      </svg>
-                    </div>
-                    Skills & Badges
-                  </h3>
-                  <div className="flex flex-wrap gap-3 justify-center">
-                   {backendData.badges.map((badge, idx) => (
-  <div
-    key={idx}
-    className="group relative flex flex-col items-center gap-3 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30 cursor-pointer"
-  >
-    <img 
-      src={badge.metadata.image} 
-      alt={`${badge.name} badge`}
-      className="w-10 h-10 object-contain rounded-md group-hover:scale-110 transition-transform"
-    />
-    <div className="flex  flex-col">
-      <span className="font-medium text-blue-100">{badge.name}</span>
-      <span className="text-xs text-blue-300/70 hidden md:block">
-        {badge.metadata.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
-      </span>
-    </div>
-    
-    {/* Hover tooltip with more details */}
-    <div className="absolute left-0 bottom-full mb-2 w-64 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-4 border border-blue-500/30 z-10">
-      <div className="flex items-start gap-3">
+                {/* Badges */}
+              <div className="mb-12">
+  <h3 className="text-2xl font-bold text-purple-200 mb-6 flex items-center gap-3 justify-center">
+    <span className="w-8 h-8 bg-purple-500/40 rounded-lg flex items-center justify-center shadow-inner">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="text-purple-200"
+      >
+        <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    </span>
+    Skills & Badges
+  </h3>
+  <div className="flex flex-wrap gap-6 justify-center">
+    {backendData.badges.map((badge, idx) => (
+      <div
+        key={idx}
+        className="group relative flex flex-col items-center gap-2 bg-gradient-to-br from-blue-800/60 to-purple-800/60 px-6 py-4 rounded-xl shadow-lg border border-blue-700/40 hover:border-purple-400/60 transition-all duration-200 cursor-pointer"
+      >
         <img 
           src={badge.metadata.image} 
           alt={`${badge.name} badge`}
-          className="w-12 h-12 object-contain rounded"
+          className="w-14 h-14 object-contain rounded-lg border-2 border-purple-400 shadow group-hover:scale-110 transition-transform duration-200"
         />
-        <div className="flex-1">
-          <h4 className="font-bold text-blue-300">{badge.metadata.name}</h4>
-          <div className="text-xs text-purple-300 mt-1">{badge.metadata.symbol}</div>
+        <div className="flex flex-col items-center">
+          <span className="font-semibold text-blue-100 text-lg">{badge.name}</span>
+          <span className="text-xs text-blue-300/80 mt-1">
+            {badge.metadata.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
+          </span>
+        </div>
+        {/* Tooltip */}
+        <div className="absolute z-20 left-1/2 -translate-x-1/2 bottom-full mb-4 w-72 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-5 border border-blue-500/30 pointer-events-none group-hover:pointer-events-auto">
+          <div className="flex items-start gap-4">
+            <img 
+              src={badge.metadata.image} 
+              alt={`${badge.name} badge`}
+              className="w-14 h-14 object-contain rounded-lg border border-purple-400"
+            />
+            <div>
+              <h4 className="font-bold text-purple-200 text-base">{badge.metadata.name}</h4>
+              <div className="text-xs text-purple-400 mt-1">{badge.metadata.symbol}</div>
+            </div>
+          </div>
+          <p className="text-sm mt-3 text-blue-100">{badge.metadata.description}</p>
+          <div className="mt-3 space-y-1">
+            {badge.metadata.attributes.map((attr, i) => (
+              <div key={i} className="flex justify-between text-xs">
+                <span className="text-blue-400">{attr.trait_type}:</span>
+                <span className="text-white font-medium">{attr.value}</span>
+              </div>
+            ))}
+          </div>
+          <a 
+            href={badge.metadata.external_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="mt-3 text-xs text-blue-400 hover:text-blue-300 underline block truncate"
+          >
+            View on GitHub →
+          </a>
+          {/* Tooltip arrow */}
+          <div className="absolute left-1/2 bottom-0 translate-x-[-50%] translate-y-full w-4 h-4 bg-slate-800 rotate-45 border-b border-r border-blue-500/30"></div>
         </div>
       </div>
-      
-      <p className="text-sm mt-3 text-blue-100">
-        {badge.metadata.description}
-      </p>
-      
-      <div className="mt-3 space-y-1">
-        {badge.metadata.attributes.map((attr, i) => (
-          <div key={i} className="flex justify-between text-xs">
-            <span className="text-blue-400">{attr.trait_type}:</span>
-            <span className="text-white font-medium">{attr.value}</span>
-          </div>
-        ))}
-      </div>
-      
-      <a 
-        href={badge.metadata.external_url} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="mt-3 text-xs text-blue-400 hover:text-blue-300 underline block truncate"
-      >
-        View on GitHub →
-      </a>
-    </div>
+    ))}
   </div>
-))}
-                  </div>
-                </div>
+</div>
+
 
                 {/* Projects */}
                 <div>
