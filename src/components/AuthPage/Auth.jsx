@@ -71,19 +71,34 @@ const ExtensionModal = ({ isOpen, onClose }) => {
         <p className="mb-4 text-gray-700">
           Our extension isn't yet published on the Chrome Web Store. Please download and install it manually:
         </p>
-        <a
-          href="https://github.com/ChhetriPrem/skillmint-extension/tree/main/github-extension"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-3 rounded-lg transition"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Download Extension
-        </a>
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          {/* Extension Repo Button (green) */}
+          <a
+            href="https://github.com/ChhetriPrem/skillmint-extension"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-3 rounded-lg transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="mr-2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 22C6.477 22 2 17.523 2 12c0-4.418 2.865-8.166 6.839-9.489.5-.091.682.217.682.483 0 .237-.009.868-.013 1.703-2.782-.604-3.369 1.342-3.369 1.342-.454 1.154-1.11 1.462-1.11 1.462-.908.62.069.608.069.608 1.004-.07 1.532-1.032 1.532-1.032.892-1.528 2.341-1.087 2.91-.832.091.646.35 1.087.636 1.338-2.221.253-4.555 1.111-4.555 4.943 0 1.091.39 1.984 1.029 2.683-.103.253-.446 1.272.098 2.652 0 0 .84.269 2.75-1.025A9.564 9.564 0 0012 17.5c.849.004 1.705-.115 2.504-.338 1.909 1.294 2.748 1.025 2.748 1.025.546-1.38.202-2.399.099-2.652.64-.699 1.028-1.592 1.028-2.683 0-3.842-2.337-4.687-4.566-4.936.359-.309.678-.92.678-1.855 0-1.338-.012-2.419-.012-2.749 0-.268.18-.577.688-.48C19.138 3.834 22 7.582 22 12c0 5.523-4.477 10-10 10z"/>
+            </svg>
+            Extension Repo
+          </a>
+          {/* Download Now Button (indigo) */}
+          <a
+            href="https://github.com/ChhetriPrem/skillmint-extension/tree/main/github-extension"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-3 rounded-lg transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download Now
+          </a>
+        </div>
         <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
           <p className="text-sm text-gray-700">
             <span className="font-medium">Installation steps:</span>
