@@ -601,14 +601,14 @@ import QRCode from 'react-qr-code';
                    {backendData.badges.map((badge, idx) => (
   <div
     key={idx}
-    className="group relative flex items-center gap-3 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30 cursor-pointer"
+    className="group relative flex flex-col items-center gap-3 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30 cursor-pointer"
   >
     <img 
       src={badge.metadata.image} 
       alt={`${badge.name} badge`}
-      className="w-10 h-10 object-contain rounded group-hover:scale-110 transition-transform"
+      className="w-10 h-10 object-contain rounded-md group-hover:scale-110 transition-transform"
     />
-    <div className="flex flex-col">
+    <div className="flex  flex-col">
       <span className="font-medium text-blue-100">{badge.name}</span>
       <span className="text-xs text-blue-300/70 hidden md:block">
         {badge.metadata.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
