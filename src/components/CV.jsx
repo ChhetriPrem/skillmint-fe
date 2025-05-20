@@ -602,7 +602,7 @@ import QRCode from 'react-qr-code';
     {backendData.badges.map((badge, idx) => (
       <div
         key={idx}
-        className="group relative flex flex-col items-center gap-2 bg-gradient-to-br from-blue-800/60 to-purple-800/60 px-6 py-4 rounded-xl shadow-lg border border-blue-700/40 hover:border-purple-400/60 transition-all duration-200 cursor-pointer"
+        className="group relative flex flex-col items-center gap-2 bg-gradient-to-br from-blue-800/60 to-purple-800/60 px-6 py-4 rounded-full shadow-lg border border-blue-700/40 hover:border-purple-400/60 transition-all duration-200 cursor-pointer"
       >
         <img 
           src={badge.metadata.image} 
