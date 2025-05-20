@@ -612,7 +612,7 @@ import QRCode from 'react-qr-code';
         <div className="flex flex-col items-center">
           <span className="font-semibold text-blue-100 text-lg">{badge.name}</span>
           <span className="text-xs text-blue-300/80 mt-1">
-            {badge.metadata.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
+            {badge.metadata?.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
           </span>
         </div>
         {/* Tooltip */}
@@ -624,13 +624,13 @@ import QRCode from 'react-qr-code';
               className="w-14 h-14 object-contain rounded-lg border border-purple-400"
             />
             <div>
-              <h4 className="font-bold text-purple-200 text-base">{badge.metadata.name}</h4>
-              <div className="text-xs text-purple-400 mt-1">{badge.metadata.symbol}</div>
+              <h4 className="font-bold text-purple-200 text-base">{badge.metadata?.name}</h4>
+              <div className="text-xs text-purple-400 mt-1">{badge.metadata?.symbol}</div>
             </div>
           </div>
-          <p className="text-sm mt-3 text-blue-100">{badge.metadata.description}</p>
+          <p className="text-sm mt-3 text-blue-100">{badge.metadata?.description}</p>
           <div className="mt-3 space-y-1">
-            {badge.metadata.attributes.map((attr, i) => (
+            {badge.metadata?.attributes.map((attr, i) => (
               <div key={i} className="flex justify-between text-xs">
                 <span className="text-blue-400">{attr.trait_type}:</span>
                 <span className="text-white font-medium">{attr.value}</span>
@@ -638,7 +638,7 @@ import QRCode from 'react-qr-code';
             ))}
           </div>
           <a 
-            href={badge.metadata.external_url} 
+            href={badge.metadata?.external_url} 
             target="_blank" 
             rel="noopener noreferrer"
             className="mt-3 text-xs text-blue-400 hover:text-blue-300 underline block truncate"
