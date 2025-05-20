@@ -86,7 +86,7 @@ const ExtensionModal = ({ isOpen, onClose }) => {
           </a>
           {/* Download Now Button (indigo) */}
          <a
-  href="/files/skillmint-extension.zip"
+  href="/files/github-extension.zip"
   download
   className="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-3 rounded-lg transition"
 >
