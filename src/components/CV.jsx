@@ -605,7 +605,7 @@ import QRCode from 'react-qr-code';
         className="group relative flex flex-col items-center gap-2 bg-gradient-to-br from-blue-800/60 to-purple-800/60 px-6 py-4 rounded-lg shadow-lg border border-blue-700/40 hover:border-purple-400/60 transition-all duration-200 cursor-pointer"
       >
         <img 
-          src={badge.metadata.image} 
+          src={badge.metadata?.image} 
           alt={`${badge.name} badge`}
           className="w-14 h-14 object-contain rounded-full border-2 border-purple-400 shadow group-hover:scale-110 transition-transform duration-200"
         />
@@ -619,7 +619,7 @@ import QRCode from 'react-qr-code';
         <div className="absolute z-20 left-1/2 -translate-x-1/2 bottom-full mb-4 w-72 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 p-5 border border-blue-500/30 pointer-events-none group-hover:pointer-events-auto">
           <div className="flex items-start gap-4">
             <img 
-              src={badge.metadata.image} 
+              src={badge.metadata?.image} 
               alt={`${badge.name} badge`}
               className="w-14 h-14 object-contain rounded-lg border border-purple-400"
             />
