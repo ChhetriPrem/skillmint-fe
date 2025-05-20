@@ -12,7 +12,7 @@
     Camera,
     Upload,
   } from "lucide-react";
-
+import axios from "axios"
   const fetchBackendData = async (githubUsername) => {
     const { data } = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
