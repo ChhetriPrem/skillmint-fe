@@ -129,14 +129,12 @@ export default function DashboardLayout() {
                   >
                     Badges
                   </button>
-                  <Link
-                    to={username ? `/cv/${username}` : "#"}
-                    className={`bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition ${
-                      !username && "opacity-50 pointer-events-none"
-                    }`}
+                   <a
+                    href="/cv"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition"
                   >
                     My CV
-                  </Link>
+                  </a>
                 </div>
                 <WalletMultiButton className="!bg-indigo-600 !hover:bg-indigo-700 !text-white !rounded-lg !shadow-sm" />
               </div>
