@@ -12,9 +12,12 @@ import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
-
+import { Link } from "react-router-dom";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 export default function DashboardLayout() {
+  const github = useUserStore((state) => state.github);
+  const username = github?.username;
+
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
   const connection = useMemo(() => new Connection(clusterApiUrl(NETWORK)), []);
 
@@ -126,12 +129,14 @@ export default function DashboardLayout() {
                   >
                     Badges
                   </button>
-                  <a
-                    href="/cv/renao"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition"
+                  <Link
+                    to={username ? `/cv/${username}` : "#"}
+                    className={`bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition ${
+                      !username && "opacity-50 pointer-events-none"
+                    }`}
                   >
                     My CV
-                  </a>
+                  </Link>
                 </div>
                 <WalletMultiButton className="!bg-indigo-600 !hover:bg-indigo-700 !text-white !rounded-lg !shadow-sm" />
               </div>
