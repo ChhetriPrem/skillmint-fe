@@ -8,11 +8,10 @@ import {
   MapPin,
   Edit2,
   Save,
-  QrCode,
   Camera,
   Upload,
 } from "lucide-react";
-
+import QRCode from "react-qr-code";
 const fetchBackendData = async (githubUsername) => {
   const { data } = await axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
