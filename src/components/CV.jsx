@@ -598,48 +598,61 @@ import QRCode from 'react-qr-code';
                     Skills & Badges
                   </h3>
                   <div className="flex flex-wrap gap-3 justify-center">
-                  {profile.badges.map((badge, idx) => (
-      <div
-        key={idx}
-        className="relative group w-36 bg-gradient-to-br from-blue-800/60 to-purple-800/60 p-4 rounded-xl shadow-lg border border-blue-700/50 hover:border-purple-500 transition-colors cursor-pointer flex flex-col items-center"
-      >
-        {/* Badge Image */}
-        <img
-          src={badge.metadata?.image || "https://via.placeholder.com/64"}
-          alt={badge.name}
-          className="w-20 h-20 rounded-full border-4 border-purple-500 shadow-md object-cover mb-3"
+                   {backendData.badges.map((badge, idx) => (
+  <div
+    key={idx}
+    className="group relative flex flex-col items-center gap-3 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30 cursor-pointer"
+  >
+    <img 
+      src={badge.metadata.image} 
+      alt={`${badge.name} badge`}
+      className="w-10 h-10 object-contain rounded-md group-hover:scale-110 transition-transform"
+    />
+    <div className="flex  flex-col">
+      <span className="font-medium text-blue-100">{badge.name}</span>
+      <span className="text-xs text-blue-300/70 hidden md:block">
+        {badge.metadata.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
+      </span>
+    </div>
+    
+    {/* Hover tooltip with more details */}
+    <div className="absolute left-0 bottom-full mb-2 w-64 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-4 border border-blue-500/30 z-10">
+      <div className="flex items-start gap-3">
+        <img 
+          src={badge.metadata.image} 
+          alt={`${badge.name} badge`}
+          className="w-12 h-12 object-contain rounded"
         />
-        {/* Badge Name */}
-        <span className="text-white text-lg font-semibold truncate text-center">
-          {badge.name}
-        </span>
-
-        {/* Tooltip */}
-        <div className="absolute z-20 left-1/2 -translate-x-1/2 top-full mt-3 w-80 bg-gradient-to-tr from-gray-900 to-gray-800 text-gray-100 text-sm rounded-lg shadow-xl p-4 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300">
-          <p className="font-semibold mb-2">{badge.metadata?.description}</p>
-          <div className="space-y-1 mb-2">
-            {badge.metadata?.attributes?.map((attr, i) => (
-              <div key={i} className="flex justify-between">
-                <span className="font-medium">{attr.trait_type}:</span>
-                <span className="truncate max-w-[60%]">{attr.value}</span>
-              </div>
-            ))}
-          </div>
-          {badge.metadata?.external_url && (
-            <a
-              href={badge.metadata.external_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-blue-400 hover:text-blue-500 underline font-medium break-words"
-            >
-              View on GitHub →
-            </a>
-          )}
-          {/* Tooltip arrow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-4 h-4 bg-gradient-to-tr from-gray-900 to-gray-800 rotate-45"></div>
+        <div className="flex-1">
+          <h4 className="font-bold text-blue-300">{badge.metadata.name}</h4>
+          <div className="text-xs text-purple-300 mt-1">{badge.metadata.symbol}</div>
         </div>
       </div>
-    ))}
+      
+      <p className="text-sm mt-3 text-blue-100">
+        {badge.metadata.description}
+      </p>
+      
+      <div className="mt-3 space-y-1">
+        {badge.metadata.attributes.map((attr, i) => (
+          <div key={i} className="flex justify-between text-xs">
+            <span className="text-blue-400">{attr.trait_type}:</span>
+            <span className="text-white font-medium">{attr.value}</span>
+          </div>
+        ))}
+      </div>
+      
+      <a 
+        href={badge.metadata.external_url} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="mt-3 text-xs text-blue-400 hover:text-blue-300 underline block truncate"
+      >
+        View on GitHub →
+      </a>
+    </div>
+  </div>
+))}
                   </div>
                 </div>
 
