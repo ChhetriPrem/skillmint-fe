@@ -21,7 +21,7 @@ import axios from "axios"
     console.log("data: " , data);
     return data;
   };
-
+import QRCode from 'react-qr-code';
   const emptyProfile = {
     name: "",
     avatar: "",
