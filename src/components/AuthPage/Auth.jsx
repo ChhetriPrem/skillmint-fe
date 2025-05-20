@@ -308,13 +308,13 @@ export default function SkillMintLanding() {
               >
                 Install Extension
               </button>
-              {githubConnected && !solWallet.connected && (
+
+            </div>
+                          {githubConnected && !solWallet.connected && (
   <div className="mt-2 text-sm text-gray-500">
     Please connect your wallet using the button above.
   </div>
 )}
-            </div>
-            
             {/* Status information */}
             {githubConnected && (
               <div className="mt-4 flex items-center">
