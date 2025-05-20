@@ -162,7 +162,7 @@ export default function PublicCV() {
     Skills & Badges
   </h3>
   <div className="flex flex-wrap gap-6 justify-center">
-    {backendData.badges.map((badge, idx) => (
+    {profile.badges.map((badge, idx) => (
       <div
         key={idx}
         className="relative group w-36 bg-gradient-to-br from-blue-800/60 to-purple-800/60 p-4 rounded-xl shadow-lg border border-blue-700/50 hover:border-purple-500 transition-colors cursor-pointer flex flex-col items-center"
