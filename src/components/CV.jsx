@@ -19,6 +19,7 @@ const fetchBackendData = async (githubUsername) => {
   );
   return data;
 };
+import axios from "axios";
 
 const emptyProfile = {
   name: "",
