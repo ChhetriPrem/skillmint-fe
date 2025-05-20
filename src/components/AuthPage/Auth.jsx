@@ -13,7 +13,7 @@ const testimonials = [
     name: "Harkirat",
     role: "Superteam DAO",
     text: "SkillMint made it effortless for us to recognize open-source contributors. The on-chain badges are a game changer for hiring!",
-    img: "https://superteam.fun/logo.png",
+    img: "https://yt3.googleusercontent.com/C25u3DcSguL-wd3GaO110Q1fyO5ClTraTjtF72kJhZtpQwuAv3zLmb7K-ZLJecQQJBVvP1McmA=s160-c-k-c0x00ffffff-no-rj",
   },
   {
     name: "Renao",
@@ -308,6 +308,11 @@ export default function SkillMintLanding() {
               >
                 Install Extension
               </button>
+              {githubConnected && !solWallet.connected && (
+  <div className="mt-2 text-sm text-gray-500">
+    Please connect your wallet using the button above.
+  </div>
+)}
             </div>
             
             {/* Status information */}
