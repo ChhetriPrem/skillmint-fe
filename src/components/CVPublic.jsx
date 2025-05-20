@@ -170,16 +170,16 @@ export default function PublicCV() {
               Skills & Badges
             </h3>
             <div className="flex flex-wrap gap-4 justify-center">
-              {backendData.badges.map((badge, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 bg-blue-800/70 px-4 py-2 rounded-lg shadow text-lg"
-                >
-                  <Award size={16} />
-                  <span>{badge.icon}</span>
-                  <span className="font-semibold">{badge.name}</span>
-                </div>
-              ))}
+                {backendData.badges.map((badge, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30"
+                      >
+                        <span className="text-2xl">{badge.icon}</span>
+                        <span className="font-medium">{badge.name}</span>
+                      </div>
+                    ))}
+              
             </div>
           </div>
           {/* Projects */}
