@@ -20,7 +20,7 @@
     );
     return data;
   };
-
+console.log("data: " , data);
   const emptyProfile = {
     name: "",
     avatar: "",
