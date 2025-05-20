@@ -59,7 +59,7 @@ export default function PublicCV() {
   const avatarSrc =
     profile.avatar ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      profile.name || backendData.githubUsername || "User"
+      profile.name || profile.githubUsername || "User"
     )}&background=0D8ABC&color=fff&size=150`;
 
   return (
@@ -91,7 +91,7 @@ export default function PublicCV() {
               className="w-32 h-32 rounded-full object-cover border-4 border-blue-600 shadow-lg"
             />
             <h2 className="text-3xl font-bold mt-4 text-blue-200">
-              {profile.name || backendData.githubUsername}
+              {profile.name || profile.githubUsername}
             </h2>
             <div className="text-lg text-purple-300 font-semibold">
               {profile.tagline}
@@ -105,7 +105,7 @@ export default function PublicCV() {
               )}
               <span className="flex items-center gap-1">
                 <Briefcase size={16} />
-                {backendData.wallet}
+                {profile.wallet}
               </span>
             </div>
           </div>
@@ -116,13 +116,13 @@ export default function PublicCV() {
           {/* Social & Contact */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             <a
-              href={backendData.githubUrl}
+              href={profile.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-blue-300 hover:text-blue-400 transition"
             >
               <Github size={16} />
-              {backendData.githubUsername}
+              {profile.githubUsername}
             </a>
             {profile.email && (
               <a
