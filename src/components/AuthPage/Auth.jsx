@@ -74,7 +74,7 @@ const ExtensionModal = ({ isOpen, onClose }) => {
         <div className="flex flex-col sm:flex-row gap-3 mb-4">
           {/* Extension Repo Button (green) */}
           <a
-            href="https://github.com/ChhetriPrem/skillmint-extension"
+            href="https://github.com/renaoch/skillmint-extension"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-3 rounded-lg transition"
@@ -86,7 +86,7 @@ const ExtensionModal = ({ isOpen, onClose }) => {
           </a>
           {/* Download Now Button (indigo) */}
           <a
-            href="https://github.com/ChhetriPrem/skillmint-extension/tree/main/github-extension"
+            href="https://github.com/renaoch/skillmint-extension"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-3 rounded-lg transition"
