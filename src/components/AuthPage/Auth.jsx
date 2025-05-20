@@ -72,7 +72,7 @@ const ExtensionModal = ({ isOpen, onClose }) => {
           Our extension isn't yet published on the Chrome Web Store. Please download and install it manually:
         </p>
         <a
-          href=""
+          href="https://github.com/ChhetriPrem/skillmint-extension/tree/main/github-extension"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-3 rounded-lg transition"
