@@ -598,15 +598,61 @@ import QRCode from 'react-qr-code';
                     Skills & Badges
                   </h3>
                   <div className="flex flex-wrap gap-3 justify-center">
-                    {backendData.badges.map((badge, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-2 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30"
-                      >
-                        <span className="text-2xl">{badge.icon}</span>
-                        <span className="font-medium">{badge.name}</span>
-                      </div>
-                    ))}
+                   {backendData.badges.map((badge, idx) => (
+  <div
+    key={idx}
+    className="group relative flex items-center gap-3 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30 cursor-pointer"
+  >
+    <img 
+      src={badge.metadata.image} 
+      alt={`${badge.name} badge`}
+      className="w-10 h-10 object-contain rounded group-hover:scale-110 transition-transform"
+    />
+    <div className="flex flex-col">
+      <span className="font-medium text-blue-100">{badge.name}</span>
+      <span className="text-xs text-blue-300/70 hidden md:block">
+        {badge.metadata.attributes.find(attr => attr.trait_type === "Level")?.value || ""}
+      </span>
+    </div>
+    
+    {/* Hover tooltip with more details */}
+    <div className="absolute left-0 bottom-full mb-2 w-64 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-4 border border-blue-500/30 z-10">
+      <div className="flex items-start gap-3">
+        <img 
+          src={badge.metadata.image} 
+          alt={`${badge.name} badge`}
+          className="w-12 h-12 object-contain rounded"
+        />
+        <div className="flex-1">
+          <h4 className="font-bold text-blue-300">{badge.metadata.name}</h4>
+          <div className="text-xs text-purple-300 mt-1">{badge.metadata.symbol}</div>
+        </div>
+      </div>
+      
+      <p className="text-sm mt-3 text-blue-100">
+        {badge.metadata.description}
+      </p>
+      
+      <div className="mt-3 space-y-1">
+        {badge.metadata.attributes.map((attr, i) => (
+          <div key={i} className="flex justify-between text-xs">
+            <span className="text-blue-400">{attr.trait_type}:</span>
+            <span className="text-white font-medium">{attr.value}</span>
+          </div>
+        ))}
+      </div>
+      
+      <a 
+        href={badge.metadata.external_url} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="mt-3 text-xs text-blue-400 hover:text-blue-300 underline block truncate"
+      >
+        View on GitHub →
+      </a>
+    </div>
+  </div>
+))}
                   </div>
                 </div>
 
