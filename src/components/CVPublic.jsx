@@ -11,15 +11,7 @@ import {
 } from "lucide-react";
 
 // Simulated backend data (replace with real API call in production)
-import axios from "axios"
-  const backendData = async (githubUsername) => {
-    const { data } = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
-      { githubUsername }
-    );
-    console.log("data: " , data);
-    return data;
-  };
+
 export default function PublicCV() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -165,23 +157,56 @@ export default function PublicCV() {
             )}
           </div>
           {/* Badges */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-purple-300 mb-2">
-              Skills & Badges
-            </h3>
-            <div className="flex flex-wrap gap-4 justify-center">
-                {backendData.badges.map((badge, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-2 bg-gradient-to-br from-blue-700/40 to-purple-700/40 px-4 py-2 rounded-lg shadow-md border border-blue-600/30 hover:border-purple-500/50 transition-all hover:shadow-purple-900/30"
-                      >
-                        <span className="text-2xl">{badge.icon}</span>
-                        <span className="font-medium">{badge.name}</span>
-                      </div>
-                    ))}
-              
-            </div>
+<div className="mb-8">
+  <h3 className="text-2xl font-bold text-purple-400 mb-6 text-center">
+    Skills & Badges
+  </h3>
+  <div className="flex flex-wrap gap-6 justify-center">
+    {backendData.badges.map((badge, idx) => (
+      <div
+        key={idx}
+        className="relative group w-36 bg-gradient-to-br from-blue-800/60 to-purple-800/60 p-4 rounded-xl shadow-lg border border-blue-700/50 hover:border-purple-500 transition-colors cursor-pointer flex flex-col items-center"
+      >
+        {/* Badge Image */}
+        <img
+          src={badge.metadata?.image || "https://via.placeholder.com/64"}
+          alt={badge.name}
+          className="w-20 h-20 rounded-full border-4 border-purple-500 shadow-md object-cover mb-3"
+        />
+        {/* Badge Name */}
+        <span className="text-white text-lg font-semibold truncate text-center">
+          {badge.name}
+        </span>
+
+        {/* Tooltip */}
+        <div className="absolute z-20 left-1/2 -translate-x-1/2 top-full mt-3 w-80 bg-gradient-to-tr from-gray-900 to-gray-800 text-gray-100 text-sm rounded-lg shadow-xl p-4 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300">
+          <p className="font-semibold mb-2">{badge.metadata?.description}</p>
+          <div className="space-y-1 mb-2">
+            {badge.metadata?.attributes?.map((attr, i) => (
+              <div key={i} className="flex justify-between">
+                <span className="font-medium">{attr.trait_type}:</span>
+                <span className="truncate max-w-[60%]">{attr.value}</span>
+              </div>
+            ))}
           </div>
+          {badge.metadata?.external_url && (
+            <a
+              href={badge.metadata.external_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-blue-400 hover:text-blue-500 underline font-medium break-words"
+            >
+              View on GitHub →
+            </a>
+          )}
+          {/* Tooltip arrow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-4 h-4 bg-gradient-to-tr from-gray-900 to-gray-800 rotate-45"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
           {/* Projects */}
           <div>
             <h3 className="text-xl font-semibold text-purple-300 mb-2">
