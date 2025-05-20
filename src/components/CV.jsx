@@ -14,17 +14,11 @@ import {
 } from "lucide-react";
 
 const fetchBackendData = async (githubUsername) => {
-  // Simulated for this demo
-  return {
-    githubUsername: githubUsername || "devuser",
-    githubUrl: `https://github.com/${githubUsername || "devuser"}`,
-    wallet: "0x1234...5678",
-    badges: [
-      { name: "React", icon: "⚛️" },
-      { name: "Solidity", icon: "🔷" },
-      { name: "TypeScript", icon: "🔵" },
-    ],
-  };
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BACKEND_URL}/api/users/getmybadges`,
+    { githubUsername }
+  );
+  return data;
 };
 
 const emptyProfile = {
@@ -84,16 +78,27 @@ export default function ModernSkillMintCV() {
     setIsEditing(false);
 
     try {
-      // Simulated upload response
-      setTimeout(() => {
-        const mockCid = "Qm123456789abcdef";
-        setIpfsCid(mockCid);
-        const blink = `https://skillmint-fe.vercel.app/publiccv?cid=${mockCid}`;
-        setBlinkUrl(blink);
-        setQrVisible(true);
-      }, 1500);
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadcv`,
+        {
+          ...profile,
+          githubUsername: backendData?.githubUsername,
+          githubUrl: backendData.githubUrl,
+          wallet: backendData.wallet,
+          badges: backendData.badges,
+        }
+      );
+      setIpfsCid(data.cid);
+      console.log("data.cid");
+      // Construct the Blink URL
+      const cid = data.cid.split("/ipfs/").pop(); // Use data.cid here
+      const blink = `https://skillmint-fe.vercel.app/publiccv?cid=${cid}`;
+
+      setBlinkUrl(blink);
+      setQrVisible(true);
+      alert("Saved to Pinata! QR code ready.");
     } catch (err) {
-      alert("Upload failed.");
+      alert("Upload to Pinata failed.");
     }
     setUploading(false);
   };
@@ -158,7 +163,7 @@ export default function ModernSkillMintCV() {
       style={{ width: size, height: size }}
     >
       <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-        <QrCode size={size / 2} />
+        <QRCode value={blinkUrl} size={180} />
       </div>
     </div>
   );
