@@ -71,7 +71,7 @@ export default function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/oauth-callback" element={<OAuthCallback />} />
               <Route path="/publiccv" element={<PublicCV />} />
-              <Route path="/cv/:username" element={<SkillMintCV />} />
+              <Route path="/cv" element={<SkillMintCV />} />
 
               {/* Protected Dashboard Routes */}
               <Route path="/dashboard" element={<ProtectedRoute />}>
